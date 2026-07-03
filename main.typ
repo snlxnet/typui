@@ -1,21 +1,13 @@
 // fine I'll do the reactjs thing
-#let last-id = state("id", 0)
-
-#let num(default) = {
+#let num(init, key, ..args) = {
   (
-    input: context {
-      let id = last-id.get()
-      last-id.update((state) => state + 1)
-      [#box()#label("input-num-id-"+id)]
-    },
-    value: default, // or get env
-    id: context { last-id.get() }
+    input: [#box(..args)#label(key)],
+    value: init, // or get env
   )
 }
 
-#let sticker-w = num(20)
-#context {last-id.get()+1}
-/*
+#let sticker-w = num(20, "sw")
+#let sticker-h = num()
 #table(
   columns: 2,
   [Sticker size (mm)], [#num("sticker-w", 20) #sym.times #num("sticker-h", 30)],
