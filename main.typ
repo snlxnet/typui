@@ -1,13 +1,3 @@
-// fine I'll do the reactjs thing
-#let num(init, key, ..args) = {
-  (
-    input: [#box(..args)#label(key)],
-    value: init, // or get env
-  )
-}
-
-#let sticker-w = num(20, "sw")
-#let sticker-h = num()
 #table(
   columns: 2,
   [Sticker size (mm)], [#num("sticker-w", 20) #sym.times #num("sticker-h", 30)],
@@ -34,4 +24,3 @@
     material-width / 1000 * material-length * price-per-sqm,
   ),
 )
-
