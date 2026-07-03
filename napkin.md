@@ -1,0 +1,5 @@
+- if the num function returns content, it can't be used as a value
+- if it's a value, it can't have an id
+- if it's a content block, it can be wrapped with a get()
+- and if it's a varible, it can probably be wrapped in a field block
+- or just set default values above
