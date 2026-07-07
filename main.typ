@@ -5,10 +5,23 @@
   a: 5,
   b: 6,
 )
-#let num(var, ..args) = {
-  box(
+
+#place(
+  top+right,
+  [
+    #box[#set text(fill: rgb("#12345600")); intial values]
+    #label("typui.init:" + json.encode(fields, pretty: false))
+  ],
+)
+// inject here
+
+#raw(json.encode(fields), lang: "json")
+
+#let num(var, ..args) = [
+  #box(
     stroke: 0.5mm,
     inset: 2mm,
+    width: 2cm,
     ..args
   )[
     #eval(
@@ -16,10 +29,10 @@
       scope: fields,
     )
   ]
-}
+  #label("typui-num-"+var.text)
+]
 
-#num[a]
-#num[b]
+#num[a] #sym.times #num[b]
 
 // replace with eqrun
 #let hypotinuse = calc.sqrt(fields.a * fields.a + fields.b * fields.b)
