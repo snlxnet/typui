@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <title>typui</title>
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="main.css" />
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,81 +16,96 @@
       const typ = document.getElementById("typ");
       const ui = document.getElementById("ui");
 
-      replaceTyp().then(replaceUi)
-      document.addEventListener("input", rebuild)
+      replaceTyp().then(replaceUi);
+      document.addEventListener("input", rebuild);
 
       function rebuild() {
-        replaceTyp(getUiValues()).then(replaceUi)
+        replaceTyp(getUiValues()).then(replaceUi);
       }
 
       function getDefaultValues() {
-        const element = Array.from(typ.querySelectorAll("[data-typst-label]"))
-          .find((el) => el.dataset.typstLabel.startsWith("typui.init:"))
-        const data = JSON.parse(element.dataset.typstLabel.replace("typui.init:", ""))
-        element.remove()
-        return data
+        const element = Array.from(
+          typ.querySelectorAll("[data-typst-label]"),
+        ).find((el) => el.dataset.typstLabel.startsWith("typui.init:"));
+        const data = JSON.parse(
+          element.dataset.typstLabel.replace("typui.init:", ""),
+        );
+        element.remove();
+        return data;
       }
 
       async function replaceUi() {
-        const defaultValues = getDefaultValues()
+        const defaultValues = getDefaultValues();
 
         const requested = Array.from(typ.querySelectorAll("[data-typst-label]"))
           .filter((el) => el.dataset.typstLabel.startsWith("typui-"))
           .map((el) => {
-            const label = el.dataset.typstLabel.replace("typui-", "")
+            const label = el.dataset.typstLabel.replace("typui-", "");
             return {
               bounds: el.getBoundingClientRect(),
               label,
               defaultVal: defaultValues[label.slice(4)],
-            }
+            };
           });
         const real = Array.from(ui.children);
 
-        real.filter(element => !requested.map(({label}) => label).includes(element.id)).map(element => element.remove())
-        requested.map(updateUiElement)
+        real
+          .filter(
+            (element) =>
+              !requested.map(({ label }) => label).includes(element.id),
+          )
+          .map((element) => element.remove());
+        requested.map(updateUiElement);
       }
 
       function getUiValues() {
-        const pairs = Array.from(ui.children).map(element => {
-          const name = element.id.slice(4)
-          if (element.tagName === "INPUT") {
-            return `${name}: ${element.value || '""'}`
-          } else {
-            return false
-          }
-        }).filter(Boolean)
+        const pairs = Array.from(ui.children)
+          .map((element) => {
+            const name = element.id.slice(4);
+            if (element.tagName === "INPUT") {
+              return `${name}: ${element.value || '""'}`;
+            } else {
+              return false;
+            }
+          })
+          .filter(Boolean);
 
-        return "#let fields = (\n" + pairs.map(line => "  " + line).join(",\n") + "\n)"
+        return (
+          "#let fields = (\n" +
+          pairs.map((line) => "  " + line).join(",\n") +
+          "\n)"
+        );
       }
 
-      function updateUiElement({label, bounds, defaultVal}) {
-        const element = ui.querySelector("#" + label) || createUiElement(label, defaultVal)
-        element.style.position = "fixed"
-        element.style.top = bounds.top + "px"
-        element.style.left = bounds.left + "px"
-        element.style.width = bounds.width + "px"
-        element.style.height = bounds.height + "px"
-        element.style.fontSize = bounds.height + "px"
+      function updateUiElement({ label, bounds, defaultVal }) {
+        const element =
+          ui.querySelector("#" + label) || createUiElement(label, defaultVal);
+        element.style.position = "fixed";
+        element.style.top = bounds.top + "px";
+        element.style.left = bounds.left + "px";
+        element.style.width = bounds.width + "px";
+        element.style.height = bounds.height + "px";
+        element.style.fontSize = bounds.height + "px";
       }
 
       function createUiElement(id, value) {
-        const kind = id.slice(0, 3)
+        const kind = id.slice(0, 3);
         let element;
-        console.log({value})
+        console.log({ value });
 
         if (kind === "num") {
-          element = document.createElement("input")
-          element.type = "number"
-          element.value = value
+          element = document.createElement("input");
+          element.type = "number";
+          element.value = value;
         } else {
-          element = document.createElement("input")
-          element.type = "text"
-          element.value = value
+          element = document.createElement("input");
+          element.type = "text";
+          element.value = value;
         }
 
-        element.id = id
-        ui.appendChild(element)
-        return element
+        element.id = id;
+        ui.appendChild(element);
+        return element;
       }
 
       async function replaceTyp(body) {

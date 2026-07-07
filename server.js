@@ -7,9 +7,11 @@ const server = Bun.serve({
     "/compile": async (req) => {
       const variables = await req.text();
       const id = crypto.randomUUID();
-      const source = await Bun.file("main.typ").text()
-      const replaced = variables ? source.replace("// inject here", variables) : source
-      Bun.write(`${id}.typ`, replaced)
+      const source = await Bun.file("main.typ").text();
+      const replaced = variables
+        ? source.replace("// inject here", variables)
+        : source;
+      Bun.write(`${id}.typ`, replaced);
 
       const compilerResponse = await $`typst compile ${id}.typ ${id}.svg`
         .text()
