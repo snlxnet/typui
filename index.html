@@ -70,7 +70,9 @@
         const pairs = Array.from(ui.children)
           .map((element) => {
             const name = element.id.slice(4);
-            if (element.tagName === "INPUT") {
+            if (element.tagName === "INPUT" && element.type === "number") {
+              return `${name}: ${element.value || "0"}`;
+            } else if (element.tagName === "INPUT") {
               return `${name}: ${element.value || '""'}`;
             } else {
               return false;
@@ -86,6 +88,7 @@
 
         return (
           "#let fields = (\n" +
+          "  ..fields,\n" +
           pairs.map((line) => "  " + line).join(",\n") +
           ",\n" +
           system.map((line) => "  " + line).join(",\n") +

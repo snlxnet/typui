@@ -5,7 +5,6 @@
 
 ## Missing Features
 
-- an actual example
 - multi-page
 - checkboxes
 - radio buttons
