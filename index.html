@@ -18,6 +18,7 @@
 
       replaceTyp().then(replaceUi);
       document.addEventListener("input", rebuild);
+      document.addEventListener("scroll", replaceUi);
 
       function rebuild() {
         replaceTyp(getUiValues()).then(replaceUi);
@@ -27,11 +28,9 @@
         const element = Array.from(
           typ.querySelectorAll("[data-typst-label]"),
         ).find((el) => el.dataset.typstLabel.startsWith("typui.init:"));
-        const data = JSON.parse(
+        return JSON.parse(
           element.dataset.typstLabel.replace("typui.init:", ""),
         );
-        element.remove();
-        return data;
       }
 
       async function replaceUi() {
@@ -41,9 +40,15 @@
           .filter((el) => el.dataset.typstLabel.startsWith("typui-"))
           .map((el) => {
             const label = el.dataset.typstLabel.replace("typui-", "");
+            const text = el.querySelector(".typst-text");
+            const color = text?.firstElementChild.getAttribute("fill");
+
+            text?.remove()
+
             return {
               bounds: el.getBoundingClientRect(),
               label,
+              color,
               defaultVal: defaultValues[label.slice(4)],
             };
           });
@@ -77,10 +82,13 @@
         );
       }
 
-      function updateUiElement({ label, bounds, defaultVal }) {
+      function updateUiElement({ label, bounds, defaultVal, color }) {
         const element =
           ui.querySelector("#" + label) || createUiElement(label, defaultVal);
         element.style.position = "fixed";
+        if (color) {
+          element.style.color = color;
+        }
         element.style.top = bounds.top + "px";
         element.style.left = bounds.left + "px";
         element.style.width = bounds.width + "px";

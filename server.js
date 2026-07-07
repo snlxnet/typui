@@ -9,7 +9,7 @@ const server = Bun.serve({
       const id = crypto.randomUUID();
       const source = await Bun.file("main.typ").text();
       const replaced = variables
-        ? source.replace("// inject here", variables)
+        ? source.replace("#typui-init(fields)", "#typui-init(fields)\n"+variables)
         : source;
       Bun.write(`${id}.typ`, replaced);
 
