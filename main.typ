@@ -1,11 +1,18 @@
 #import "lib.typ": typui-init, typui-inputs
 
-#set page(paper: "a5")
-#set text(12pt, font: "DejaVu Sans Mono")
-
 #let fields = (
   a: 5,
   b: 6,
+
+  window-width: 900,
+  window-height: 900,
+  cm: 38,
+)
+// inject
+#set text(12pt, font: "DejaVu Sans Mono")
+#set page(
+  width: fields.window-width / fields.cm * 1cm,
+  height: fields.window-height / fields.cm * 1cm,
 )
 
 #typui-init(fields)

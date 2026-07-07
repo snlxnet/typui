@@ -11,13 +11,16 @@
   <body>
     <div id="typ">Loading...</div>
     <div id="ui"></div>
+    <div id="cm">1cm reference square</div>
 
     <script>
       const typ = document.getElementById("typ");
       const ui = document.getElementById("ui");
+      const cm = document.getElementById("cm");
 
-      replaceTyp().then(replaceUi);
+      replaceTyp().then(replaceUi).then(rebuild);
       document.addEventListener("input", rebuild);
+      window.addEventListener("resize", rebuild);
       document.addEventListener("scroll", replaceUi);
 
       function rebuild() {
@@ -75,9 +78,17 @@
           })
           .filter(Boolean);
 
+        const system = [
+          `window-width: ${window.innerWidth}`,
+          `window-height: ${window.innerHeight}`,
+          `cm: ${cm.clientWidth}`,
+        ]
+
         return (
           "#let fields = (\n" +
           pairs.map((line) => "  " + line).join(",\n") +
+          ",\n" +
+          system.map((line) => "  " + line).join(",\n") +
           "\n)"
         );
       }

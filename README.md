@@ -1,7 +1,10 @@
+## Features
+- number inputs
+- text inputs (untested)
+- dynamic page size
+
 ## Missing Features
 
-- dynamic page size
-- page centering
 - an actual example
 - multi-page
 - checkboxes
