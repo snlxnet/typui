@@ -2,10 +2,11 @@
 - number inputs
 - text inputs (untested)
 - dynamic page size
+- multi-page
 
 ## Missing Features
 
-- multi-page
 - checkboxes
 - radio buttons
 - focus tracking
+- hot reloading

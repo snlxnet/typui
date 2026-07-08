@@ -13,7 +13,7 @@ const server = Bun.serve({
         : source;
       Bun.write(`${id}.typ`, replaced);
 
-      const compilerResponse = await $`typst compile ${id}.typ ${id}.svg`
+      const compilerResponse = await $`typst compile ${id}.typ ${id}-page{0p}.svg`
         .text()
         .catch(
           (e) =>
@@ -25,10 +25,12 @@ const server = Bun.serve({
             ].join("<br>") +
             "</pre>",
         );
+      await $`ls ${id}-page* | sort | xargs cat > ${id}.svg`
+      console.log(await $`sort ${id}-page*`.text())
       const output = Bun.file(`./${id}.svg`);
       setTimeout(async () => {
         console.log("cleanup", id);
-        await $`rm ${id}.*`;
+        await $`rm ${id}*`;
       }, 1000);
       return new Response(compilerResponse || output);
     },

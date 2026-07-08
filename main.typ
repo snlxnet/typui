@@ -39,8 +39,6 @@
   [Длина рулона], text(fill: green)[#длин-рулона м/п],
 )
 
-#colbreak()
-
 #let scale = 0.2mm
 #box(width: п.шир-рулона*scale, height: длин-рулона*scale*10, fill: rgb("#eee"))[
   #for i in range(п.количество) {
