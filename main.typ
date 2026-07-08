@@ -1,4 +1,4 @@
-#import "lib.typ": typui-inputs
+#import "lib.typ": typui-builder
 
 #let fields = (
   выс-накл: 20,
@@ -25,17 +25,17 @@
   columns: 2,
 )
 
-#let (txt: txt, num: num, chk: chk) = typui-inputs(fields)
+#let input = typui-builder(fields)
 
 #fields.focus
-#let frame(fun, var) = {
+#let frame(var) = {
   let focused = fields.focus == var.text
 
   box(
     stroke: 0.5mm + if focused { blue } else { black },
     radius: 0.5em,
     inset: 1mm,
-    fun(var),
+    input(var),
   )
 }
 
@@ -43,9 +43,9 @@
 #[
   #set box(stroke: 0.2mm, radius: 0.5em, inset: 1mm)
 
-  #frame(num)[example-num] = #box[#fields.example-num]\
-  #frame(txt)[example-txt] = #box(fields.example-txt)\
-  #frame(chk)[example-chk] = #box[#fields.example-chk]\
+  #frame[example-num] = #box[#fields.example-num]\
+  #frame[example-txt] = #box(fields.example-txt)\
+  #frame[example-chk] = #box[#fields.example-chk]\
 ]
 
 = Расчет наклеек
@@ -59,9 +59,9 @@
 
 #table(
   columns: 2,
-  [Размеры наклейки], [#num[шир-накл]мм #sym.times #num[выс-накл]мм],
-  [Ширина рулона], [#num[шир-рулона]м],
-  [Количество наклеек], num[количество],
+  [Размеры наклейки], [#input[шир-накл]мм #sym.times #input[выс-накл]мм],
+  [Ширина рулона], [#input[шир-рулона]м],
+  [Количество наклеек], input[количество],
   [Длина рулона], text(fill: green)[#(длин-рулона/1000) м/п],
 )
 

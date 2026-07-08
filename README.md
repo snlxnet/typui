@@ -5,11 +5,12 @@
 - multi-page
 - checkboxes
 - focus tracking
+- dyn guess on data type
 
 ## Missing Features
 
 - proper font support
-- dyn guess on data type
+- swap button
 - hot reloading
 - radio buttons - can't come up with a DX I like
 - increment / decrement counters

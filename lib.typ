@@ -1,24 +1,19 @@
-#let typui-inputs(fields) = {
-  let inputs = (
-    txt: (var) => [
-      #box(inset: 0mm, outset: 0mm, stroke: 0mm)[
-        #eval(var.text, scope: fields)~
-      ]
-      #label("typui-txt-"+var.text)
-    ],
-    num: (var) => [
-      #box(inset: 0mm, outset: 0mm, stroke: 0mm)[
-        #eval(var.text, scope: fields)
-      ]
-      #label("typui-num-"+var.text)
-    ],
-    chk: (var, checked: sym.checkmark, unchecked: [~], ..args) => [
-      #box(inset: 0mm, outset: 0mm, stroke: 0mm, ..args)[
-        #let state = eval(var.text, scope: fields)
-        #if state { checked } else { unchecked }
-      ]
-      #label("typui-chk-"+var.text)
+#let typui-builder(fields, checked: sym.checkmark, unchecked: [~]) = (var, ..args) => {
+  let value = eval(var.text, scope: fields)
+  
+  if type(value) == str [
+    #box(inset: 0mm, outset: 0mm, stroke: 0mm)[#value~]
+    #label("typui-txt-"+var.text)
+  ] else if type(value) == int or type(value) == float [
+    #box(inset: 0mm, outset: 0mm, stroke: 0mm)[#value]
+    #label("typui-num-"+var.text)
+  ] else if type(value) == bool [
+    #box(inset: 0mm, outset: 0mm, stroke: 0mm, ..args)[
+      #let state = value
+      #if state { checked } else { unchecked }
     ]
-  )
-  inputs
+    #label("typui-chk-"+var.text)
+  ] else [
+    typui: unknown input type
+  ]
 }
