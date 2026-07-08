@@ -1,4 +1,5 @@
 const typ = document.getElementById("typ");
+const err = document.getElementById("err");
 const ui = document.getElementById("ui");
 const cm = document.getElementById("cm");
 
@@ -119,5 +120,11 @@ async function replaceTyp(body) {
     method: "POST",
     body: body || "// typui: no input provided",
   });
-  typ.innerHTML = await response.text();
+  const text = await response.text();
+
+  if (text.startsWith("<pre>")) {
+    err.innerHTML = text
+  } else {
+    typ.innerHTML = text
+  }
 }

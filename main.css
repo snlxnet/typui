@@ -6,6 +6,20 @@
   font-family: inherit;
 }
 
+#err {
+  font-family: monospace;
+  position: fixed;
+  bottom: 1em;
+  right: 1em;
+  border-radius: 1em;
+  max-width: 100%;
+  background: #1e1e2e;
+  color: #f38ba8;
+}
+#err:not(:empty) {
+  padding: 1em;
+}
+
 #typ>svg {
   width: 100%;
 }
