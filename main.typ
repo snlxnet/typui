@@ -1,4 +1,4 @@
-#import "lib.typ": typui-init, typui-inputs
+#import "lib.typ": typui-inputs
 
 #let fields = (
   выс-накл: 20,
@@ -25,7 +25,6 @@
   columns: 2,
 )
 
-#typui-init(fields)
 #let (txt: txt, num: num, chk: chk) = typui-inputs(fields)
 
 #fields.focus

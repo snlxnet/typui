@@ -1,5 +1,10 @@
 import { $ } from "bun";
 
+const init = `#place(
+  top+right,
+  [#box[]#label("typui.init:" + json.encode(fields, pretty: false))]
+)`
+
 const server = Bun.serve({
   routes: {
     "/": Bun.file("./index.html"),
@@ -12,7 +17,7 @@ const server = Bun.serve({
       const replaced = variables
         ? source.replace("// inject", variables)
         : source;
-      Bun.write(`${id}.typ`, replaced);
+      Bun.write(`${id}.typ`, replaced + "\n" + init);
 
       const compilerResponse = await $`typst compile ${id}.typ ${id}-page{0p}.svg`
         .text()
