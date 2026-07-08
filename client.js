@@ -1,3 +1,5 @@
+const root = new URL(window.location.href).searchParams.get("root") || "main.typ"
+
 const typ = document.getElementById("typ");
 const err = document.getElementById("err");
 const ui = document.getElementById("ui");
@@ -135,7 +137,7 @@ function createUiElement(id, value) {
 }
 
 async function replaceTyp(body) {
-  const response = await fetch("/compile", {
+  const response = await fetch(`/compile?root=${root}`, {
     method: "POST",
     body: body || "// typui: no input provided",
   });

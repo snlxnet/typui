@@ -11,9 +11,10 @@ const server = Bun.serve({
     "/client.js": Bun.file("./client.js"),
     "/main.css": Bun.file("./main.css"),
     "/compile": async (req) => {
+      const root = new URL(req.url).searchParams.get("root") || "main.typ"
       const variables = await req.text();
       const id = crypto.randomUUID();
-      const source = await Bun.file("main.typ").text();
+      const source = await Bun.file(root).text();
       const replaced = variables
         ? source.replace("// inject", variables)
         : source;

@@ -1,4 +1,4 @@
-#let typui-builder(fields, checked: sym.checkmark, unchecked: [~]) = (var, ..args) => {
+#let typui-builder(fields, checked: sym.checkmark, unchecked: hide(sym.checkmark)) = (var, ..args) => {
   let value = eval(var.text, scope: fields)
   
   if type(value) == str [

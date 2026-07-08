@@ -7,10 +7,6 @@
   количество: 20,
   отступ: 6,
 
-  example-num: 42,
-  example-txt: "test",
-  example-chk: true,
-
   window-width: 900,
   window-height: 900,
   cm: 38,
@@ -26,27 +22,6 @@
 )
 
 #let input = typui-builder(fields)
-
-#fields.focus
-#let frame(var) = {
-  let focused = fields.focus == var.text
-
-  box(
-    stroke: 0.5mm + if focused { blue } else { black },
-    radius: 0.5em,
-    inset: 1mm,
-    input(var),
-  )
-}
-
-= Примеры полей
-#[
-  #set box(stroke: 0.2mm, radius: 0.5em, inset: 1mm)
-
-  #frame[example-num] = #box[#fields.example-num]\
-  #frame[example-txt] = #box(fields.example-txt)\
-  #frame[example-chk] = #box[#fields.example-chk]\
-]
 
 = Расчет наклеек
 #let п = fields
@@ -69,8 +44,9 @@
 
 #layout(size => {
   let scale = size.width / п.шир-рулона
-  block(width: п.шир-рулона*scale, height: длин-рулона*scale, fill: rgb("#eee"))[
-    #set align(horizon + center)
+  set par(spacing: 0mm, leading: 0mm)
+  box(width: п.шир-рулона*scale, height: длин-рулона*scale, fill: rgb("#eee"))[
+    #set align(center + horizon)
     #for i in range(п.количество) {
       box(width: шир*scale, height: выс*scale, inset: calc.floor(п.отступ / 2) * scale)[
         #box(width: 100%, height: 100%, fill: green)
