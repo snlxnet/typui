@@ -56,6 +56,11 @@ input[type=number] {
   -moz-appearance: textfield;
 }
 
+input[type=checkbox] {
+  opacity: 0;
+  cursor: pointer;
+}
+
 textarea {
   margin-top: -0.1em;
 }

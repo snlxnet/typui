@@ -9,6 +9,7 @@
 
   example-num: 42,
   example-txt: "test",
+  example-chk: true,
 
   window-width: 900,
   window-height: 900,
@@ -23,14 +24,15 @@
 )
 
 #typui-init(fields)
-#let (txt: txt, num: num) = typui-inputs(fields)
+#let (txt: txt, num: num, chk: chk) = typui-inputs(fields)
 
 = Примеры полей
 #[
   #set box(stroke: 0.2mm, radius: 0.5em, inset: 1mm)
 
-  #box(num[example-num]) = #box(str(fields.example-num))\
+  #box(num[example-num]) = #box[#fields.example-num]\
   #box(txt[example-txt]) = #box(fields.example-txt)\
+  #box(chk[example-chk]) = #box[#fields.example-chk]\
 ]
 
 = Расчет наклеек

@@ -31,7 +31,9 @@ async function replaceUi() {
       const text = Array.from(el.querySelectorAll(".typst-text"));
       const color = text[0]?.firstElementChild?.getAttribute("fill") || undefined;
 
-      text.forEach(el => el.remove())
+      if (label.slice(0, 3) !== "chk") {
+        text.forEach(el => el.remove())
+      }
 
       return {
         bounds: el.getBoundingClientRect(),
@@ -55,8 +57,10 @@ function getUiValues() {
   const pairs = Array.from(ui.children)
     .map((element) => {
       const name = element.id.slice(4);
-      if (element.tagName === "INPUT" && element.type === "number") {
+      if (element.type === "number") {
         return `${name}: ${element.value || "0"}`;
+      } else if (element.type === "checkbox") {
+        return `${name}: ${element.checked || false}`;
       } else if (element.tagName === "TEXTAREA") {
         return `${name}: "${element.value || ""}"`;
       } else {
@@ -109,7 +113,11 @@ function createUiElement(id, value) {
     element = document.createElement("input");
     element.type = "number";
     element.value = value;
-  } else if (kind == "txt") {
+  } else if (kind === "chk") {
+    element = document.createElement("input");
+    element.type = "checkbox";
+    element.checked = value;
+  } else if (kind === "txt") {
     element = document.createElement("textarea");
     element.value = value;
   } else {

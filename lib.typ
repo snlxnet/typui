@@ -8,15 +8,22 @@
 
 #let typui-inputs(fields) = (
   txt: (var) => [
-    #box(inset: 0mm, outset: 0mm, stroke: 0mm, baseline: 20%)[
+    #box(inset: 0mm, outset: 0mm, stroke: 0mm)[
       #eval(var.text, scope: fields)~
     ]
     #label("typui-txt-"+var.text)
   ],
   num: (var) => [
-    #box(inset: 0mm, outset: 0mm, stroke: 0mm, baseline: 20%)[
+    #box(inset: 0mm, outset: 0mm, stroke: 0mm)[
       #eval(var.text, scope: fields)
     ]
     #label("typui-num-"+var.text)
   ],
+  chk: (var, ..args) => [
+    #box(inset: 0mm, outset: 0mm, stroke: 0mm, ..args)[
+      #let checked = eval(var.text, scope: fields)
+      #if checked [#sym.checkmark] else [~]
+    ]
+    #label("typui-chk-"+var.text)
+  ]
 )
