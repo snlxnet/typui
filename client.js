@@ -131,7 +131,9 @@ function createUiElement(id, value) {
   }
 
   element.id = id;
-  element.onfocus = () => element.dispatchEvent(new CustomEvent("focuswithin", { bubbles: true }))
+  const sendFocusChange = () => element.dispatchEvent(new CustomEvent("focuswithin", { bubbles: true }))
+  element.onfocus = sendFocusChange
+  element.onblur = () => setTimeout(sendFocusChange, 100)
   ui.appendChild(element);
   return element;
 }

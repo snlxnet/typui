@@ -2,10 +2,10 @@
   let value = eval(var.text, scope: fields)
   
   if type(value) == str [
-    #box(inset: 0mm, outset: 0mm, stroke: 0mm)[#value~]
+    #box(inset: 0mm, outset: 0mm, stroke: 0mm, ..args)[#value~]
     #label("typui-txt-"+var.text)
   ] else if type(value) == int or type(value) == float [
-    #box(inset: 0mm, outset: 0mm, stroke: 0mm)[#value]
+    #box(inset: 0mm, outset: 0mm, stroke: 0mm, ..args)[#value]
     #label("typui-num-"+var.text)
   ] else if type(value) == bool [
     #box(inset: 0mm, outset: 0mm, stroke: 0mm, ..args)[

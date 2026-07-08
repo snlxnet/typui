@@ -11,6 +11,8 @@
 
 - proper font support
 - swap button
+- renaming the fields object
 - hot reloading
-- radio buttons - can't come up with a DX I like
 - increment / decrement counters
+- browser-only version
+- radio buttons - can't come up with a DX I like

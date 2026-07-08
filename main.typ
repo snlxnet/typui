@@ -20,8 +20,16 @@
   height: fields.window-height / fields.cm * 1cm,
   columns: 2,
 )
+#let accent = green
+#let border-normal = gray
 
-#let input = typui-builder(fields)
+#let raw-input = typui-builder(fields)
+#let input(var) = box(
+  width: 6em,
+  inset: 2mm,
+  stroke: 0.5mm + if fields.focus == var.text { accent } else { border-normal },
+  raw-input(var, width: 100%),
+)
 
 = Расчет наклеек
 #let п = fields
@@ -32,12 +40,14 @@
 #let строки = calc.ceil(п.количество / столбцы)
 #let длин-рулона = строки * выс + 200
 
-#table(
+#grid(
   columns: 2,
-  [Размеры наклейки], [#input[шир-накл]мм #sym.times #input[выс-накл]мм],
-  [Ширина рулона], [#input[шир-рулона]м],
+  gutter: 2em,
+  align: horizon,
+  [Размеры наклейки, мм], [#input[шир-накл] #box(inset: (y: 2mm), sym.times) #input[выс-накл]],
+  [Ширина рулона, м], input[шир-рулона],
   [Количество наклеек], input[количество],
-  [Длина рулона], text(fill: green)[#(длин-рулона/1000) м/п],
+  [Длина рулона, м/п], text(fill: green)[#(длин-рулона/1000)],
 )
 
 #colbreak()
