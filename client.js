@@ -5,6 +5,7 @@ const cm = document.getElementById("cm");
 
 replaceTyp().then(replaceUi).then(rebuild);
 document.addEventListener("input", rebuild);
+document.addEventListener("focuswithin", rebuild);
 window.addEventListener("resize", rebuild);
 document.addEventListener("scroll", replaceUi);
 
@@ -73,6 +74,7 @@ function getUiValues() {
     `window-width: ${window.innerWidth}`,
     `window-height: ${window.innerHeight}`,
     `cm: ${cm.clientWidth}`,
+    `focus: "${document.activeElement?.id?.slice(4) || ""}"`
   ]
 
   return (
@@ -127,6 +129,7 @@ function createUiElement(id, value) {
   }
 
   element.id = id;
+  element.onfocus = () => element.dispatchEvent(new CustomEvent("focuswithin", { bubbles: true }))
   ui.appendChild(element);
   return element;
 }

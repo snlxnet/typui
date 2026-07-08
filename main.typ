@@ -14,8 +14,10 @@
   window-width: 900,
   window-height: 900,
   cm: 38,
+  focus: "",
 )
 // inject
+
 #set text(12pt, font: "DejaVu Sans Mono")
 #set page(
   width: fields.window-width / fields.cm * 1cm,
@@ -26,13 +28,25 @@
 #typui-init(fields)
 #let (txt: txt, num: num, chk: chk) = typui-inputs(fields)
 
+#fields.focus
+#let frame(fun, var) = {
+  let focused = fields.focus == var.text
+
+  box(
+    stroke: 0.5mm + if focused { blue } else { black },
+    radius: 0.5em,
+    inset: 1mm,
+    fun(var),
+  )
+}
+
 = Примеры полей
 #[
   #set box(stroke: 0.2mm, radius: 0.5em, inset: 1mm)
 
-  #box(num[example-num]) = #box[#fields.example-num]\
-  #box(txt[example-txt]) = #box(fields.example-txt)\
-  #box(chk[example-chk]) = #box[#fields.example-chk]\
+  #frame(num)[example-num] = #box[#fields.example-num]\
+  #frame(txt)[example-txt] = #box(fields.example-txt)\
+  #frame(chk)[example-chk] = #box[#fields.example-chk]\
 ]
 
 = Расчет наклеек
