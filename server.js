@@ -15,6 +15,7 @@ const server = Bun.serve({
 
       const compilerResponse = await $`typst compile ${id}.typ ${id}-page{0p}.svg`
         .text()
+        .then(async () => {await $`ls ${id}-page* | sort | xargs cat > ${id}.svg`})
         .catch(
           (e) =>
             "<pre>" +
@@ -25,8 +26,6 @@ const server = Bun.serve({
             ].join("<br>") +
             "</pre>",
         );
-      await $`ls ${id}-page* | sort | xargs cat > ${id}.svg`
-      console.log(await $`sort ${id}-page*`.text())
       const output = Bun.file(`./${id}.svg`);
       setTimeout(async () => {
         console.log("cleanup", id);
