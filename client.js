@@ -5,7 +5,7 @@ const err = document.getElementById("err");
 const ui = document.getElementById("ui");
 const cm = document.getElementById("cm");
 
-replaceTyp().then(replaceUi).then(rebuild);
+rebuild()
 document.addEventListener("input", rebuild);
 document.addEventListener("focuswithin", rebuild);
 window.addEventListener("resize", rebuild);
@@ -79,14 +79,11 @@ function getUiValues() {
     `focus: "${document.activeElement?.id?.slice(4) || ""}"`
   ]
 
-  return (
-    "#let fields = (\n" +
-    "  ..fields,\n" +
-    pairs.map((line) => "  " + line).join(",\n") +
-    ",\n" +
-    system.map((line) => "  " + line).join(",\n") +
-    "\n)"
-  );
+  return "#let fields = (" + [
+    "..fields",
+    ...pairs,
+    ...system,
+  ].join(",\n") + ")";
 }
 
 function updateUiElement({ label, bounds, defaultVal, color }) {
