@@ -91,10 +91,14 @@ function updateUiElement({ label, bounds, defaultVal, color }) {
   element.style.top = bounds.top + "px";
   element.style.left = bounds.left + "px";
   element.style.width = bounds.width + "px";
-  element.style.height = bounds.height + "px";
+  if (label.startsWith("txt")) {
+    element.style.minHeight = bounds.height + "px";
+  } else {
+    element.style.height = bounds.height + "px";
+  }
   const lines = element.value?.split("\n")?.length || 1
-  console.log(lines, element.value)
-  element.style.fontSize = bounds.height / lines + "px";
+  const correction = lines === 1 ? 0.7 : lines
+  element.style.fontSize = bounds.height / correction + "px";
 }
 
 function createUiElement(id, value) {
