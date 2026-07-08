@@ -46,7 +46,7 @@
   block(width: п.шир-рулона*scale, height: длин-рулона*scale, fill: rgb("#eee"))[
     #set align(horizon + center)
     #for i in range(п.количество) {
-      box(width: п.шир-накл*scale, height: п.выс-накл*scale, inset: calc.floor(п.отступ / 2) * scale)[
+      box(width: шир*scale, height: выс*scale, inset: calc.floor(п.отступ / 2) * scale)[
         #box(width: 100%, height: 100%, fill: green)
       ]
     }
