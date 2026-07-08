@@ -15,7 +15,7 @@
 #set text(12pt, font: "DejaVu Sans Mono")
 #set page(
   width: fields.window-width / fields.cm * 1cm,
-  height: fields.window-height / fields.cm * 1cm * 2,
+  height: fields.window-height / fields.cm * 1cm,
   columns: 2,
 )
 
@@ -27,23 +27,29 @@
 
 #let выс = п.выс-накл + п.отступ
 #let шир = п.шир-накл + п.отступ
-#let столбцы = calc.floor(п.шир-рулона / п.шир-накл)
+#let столбцы = calc.floor(п.шир-рулона / шир)
 #let строки = calc.ceil(п.количество / столбцы)
-#let длин-рулона = ((150 + строки * п.выс-накл) / 100)
+#let длин-рулона = строки * выс + 200
 
 #table(
   columns: 2,
-  [Размеры наклейки], [#num[выс-накл]мм #sym.times #num[шир-накл]мм],
+  [Размеры наклейки], [#num[шир-накл]мм #sym.times #num[выс-накл]мм],
   [Ширина рулона], [#num[шир-рулона]м],
   [Количество наклеек], num[количество],
-  [Длина рулона], text(fill: green)[#длин-рулона м/п],
+  [Длина рулона], text(fill: green)[#(длин-рулона/1000) м/п],
 )
 
-#let scale = 0.2mm
-#box(width: п.шир-рулона*scale, height: длин-рулона*scale*10, fill: rgb("#eee"))[
-  #for i in range(п.количество) {
-    box(width: п.шир-накл*scale, height: п.выс-накл*scale, inset: calc.floor(п.отступ / 2) * scale)[
-      #box(width: 100%, height: 100%, fill: green)
-    ]
-  }
-]
+#colbreak()
+
+#layout(size => {
+  let scale = size.width / п.шир-рулона
+  block(width: п.шир-рулона*scale, height: длин-рулона*scale, fill: rgb("#eee"))[
+    #set align(horizon + center)
+    #for i in range(п.количество) {
+      box(width: п.шир-накл*scale, height: п.выс-накл*scale, inset: calc.floor(п.отступ / 2) * scale)[
+        #box(width: 100%, height: 100%, fill: green)
+      ]
+    }
+  ]
+})
+
