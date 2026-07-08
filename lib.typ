@@ -7,17 +7,15 @@
 )
 
 #let typui-inputs(fields) = (
+  txt: (var, ..args) => [
+    #box(stroke: 0mm, baseline: 20%, ..args)[
+      #eval(var.text, scope: fields)~
+    ]
+    #label("typui-txt-"+var.text)
+  ],
   num: (var, ..args) => [
-    #box(
-      stroke: 0mm,
-      height: 1.2em,
-      baseline: 20%,
-      ..args
-    )[
-      #eval(
-        var.text,
-        scope: fields,
-      )
+    #box(stroke: 0mm, height: 1.2em, baseline: 20%, ..args)[
+      #eval(var.text, scope: fields)
     ]
     #label("typui-num-"+var.text)
   ],

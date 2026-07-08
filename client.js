@@ -28,10 +28,10 @@ async function replaceUi() {
     .filter((el) => el.dataset.typstLabel.startsWith("typui-"))
     .map((el) => {
       const label = el.dataset.typstLabel.replace("typui-", "");
-      const text = el.querySelector(".typst-text");
-      const color = text?.firstElementChild.getAttribute("fill");
+      const text = Array.from(el.querySelectorAll(".typst-text"));
+      const color = text[0]?.firstElementChild?.getAttribute("fill") || undefined;
 
-      text?.remove()
+      text.forEach(el => el.remove())
 
       return {
         bounds: el.getBoundingClientRect(),
@@ -57,8 +57,8 @@ function getUiValues() {
       const name = element.id.slice(4);
       if (element.tagName === "INPUT" && element.type === "number") {
         return `${name}: ${element.value || "0"}`;
-      } else if (element.tagName === "INPUT") {
-        return `${name}: ${element.value || '""'}`;
+      } else if (element.tagName === "TEXTAREA") {
+        return `${name}: "${element.value || ""}"`;
       } else {
         return false;
       }
@@ -92,17 +92,21 @@ function updateUiElement({ label, bounds, defaultVal, color }) {
   element.style.left = bounds.left + "px";
   element.style.width = bounds.width + "px";
   element.style.height = bounds.height + "px";
-  element.style.fontSize = bounds.height + "px";
+  const lines = element.value?.split("\n")?.length || 1
+  console.log(lines, element.value)
+  element.style.fontSize = bounds.height / lines + "px";
 }
 
 function createUiElement(id, value) {
   const kind = id.slice(0, 3);
   let element;
-  console.log({ value });
 
   if (kind === "num") {
     element = document.createElement("input");
     element.type = "number";
+    element.value = value;
+  } else if (kind == "txt") {
+    element = document.createElement("textarea");
     element.value = value;
   } else {
     element = document.createElement("input");

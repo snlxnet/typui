@@ -1,6 +1,6 @@
 ## Features
 - number inputs
-- text inputs (untested)
+- text inputs
 - dynamic page size
 - multi-page
 
