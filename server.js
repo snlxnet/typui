@@ -3,6 +3,7 @@ import { $ } from "bun";
 const server = Bun.serve({
   routes: {
     "/": Bun.file("./index.html"),
+    "/client.js": Bun.file("./client.js"),
     "/main.css": Bun.file("./main.css"),
     "/compile": async (req) => {
       const variables = await req.text();
