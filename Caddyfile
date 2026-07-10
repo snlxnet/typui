@@ -1,0 +1,4 @@
+localhost {
+    file_server
+    reverse_proxy /compile :3000
+}
