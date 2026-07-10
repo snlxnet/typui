@@ -5,23 +5,28 @@ import { Hono } from 'hono'
 
 const app = new Hono()
 
+const WORKDIR = (process.env.TYPUI_DIR || "./typ") + "/"
+const PORT = +(process.env.TYPUI_PORT || 3000)
+
 const init = `#place(
   top+right,
   [#box[]#label("typui.init:" + json.encode(fields, pretty: false))]
 )`
 
 app.post('/compile', async (c) => {
-  const root = c.req.param("root") || "main.typ"
   const variables = await c.req.text();
-  const id = crypto.randomUUID();
-  const source = await readFile(root, {encoding: "utf8"});
+  const tempFile = WORKDIR + crypto.randomUUID();
+
+  const sourcePath = WORKDIR + (c.req.param("root") || "main.typ")
+  const source = await readFile(sourcePath, {encoding: "utf8"});
+
   const replaced = variables
     ? source.replace("// inject", variables)
     : source;
-  await writeFile(`${id}.typ`, replaced + "\n" + init);
 
-  const compilerResponse = await sh(`typst compile ${id}.typ ${id}-page{0p}.svg`)
-    .then(async () => {await sh(`ls ${id}-page* | sort | xargs cat > ${id}.svg`)})
+  await writeFile(`${tempFile}.typ`, replaced + "\n" + init);
+
+  const compilerResponse = await sh(`typst compile ${tempFile}.typ ${tempFile}-page{0p}.svg`)
     .catch(
       (e) =>
         "<pre>" +
@@ -32,22 +37,24 @@ app.post('/compile', async (c) => {
         ].join("<br>") +
         "</pre>",
     );
-  const output = await readFile(`./${id}.svg`, { encoding: 'utf8' });
+  await sh(`ls ${tempFile}-page* | sort | xargs cat > ${tempFile}.svg`)
+
+  const output = await readFile(`${tempFile}.svg`, { encoding: 'utf8' });
   setTimeout(async () => {
-    console.log("cleanup", id);
-    await sh(`rm ${id}*`);
+    await sh(`rm ${tempFile}*`);
   }, 1000);
   return new Response(compilerResponse || output);
 })
 
 serve({
   fetch: app.fetch,
-  port: 3000
+  port: PORT
 }, (info) => {
-  console.log(`Server is running on http://localhost:${info.port}`)
+  console.log(`Server is running on port ${info.port}`)
 })
 
-async function sh(command: string) {
+async function sh(command: string): Promise<string> {
+  console.log("$ " + command)
   return new Promise((resolve, reject) => {
     exec(command, (exitCode, stdout, stderr) => {
       if (exitCode) {

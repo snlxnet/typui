@@ -2,8 +2,8 @@
   "name": "typui",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "rolldown src/index.ts --file server.js --minify --platform node",
+    "dev": "tsx watch server.ts",
+    "build": "rolldown server.ts --file server.js --minify --platform node",
     "start": "node dist/index.js"
   },
   "dependencies": {
