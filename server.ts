@@ -5,7 +5,7 @@ import { Hono } from 'hono'
 
 const app = new Hono()
 
-const WORKDIR = (process.env.TYPUI_DIR || "./typ") + "/"
+const WORKDIR = (process.env.TYPUI_DIR || ".") + "/"
 const PORT = +(process.env.TYPUI_PORT || 3000)
 
 const init = `#place(

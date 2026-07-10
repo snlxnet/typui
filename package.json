@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch server.ts",
-    "build": "rolldown server.ts --file server.js --minify --platform node",
+    "build": "rolldown server.ts --file bundle/server.js --minify --platform node",
     "start": "node dist/index.js"
   },
   "dependencies": {
