@@ -2,7 +2,7 @@
   "name": "typui",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch server.ts",
+    "dev": "TYPUI_DIR=src tsx watch server.ts",
     "build": "rolldown server.ts --file bundle/server.js --minify --platform node",
     "start": "node dist/index.js"
   },

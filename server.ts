@@ -17,7 +17,7 @@ app.post('/compile', async (c) => {
   const variables = await c.req.text();
   const tempFile = WORKDIR + crypto.randomUUID();
 
-  const sourcePath = WORKDIR + (c.req.param("root") || "main.typ")
+  const sourcePath = WORKDIR + (new URL(c.req.url).searchParams.get("root") || "main.typ")
   const source = await readFile(sourcePath, {encoding: "utf8"});
 
   const replaced = variables
