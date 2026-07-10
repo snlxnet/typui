@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "rolldown src/index.ts --file server.js --minify --platform node",
     "start": "node dist/index.js"
   },
   "dependencies": {
@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
+    "rolldown": "^1.1.5",
     "tsx": "^4.7.1",
     "typescript": "^5.8.3"
   }
