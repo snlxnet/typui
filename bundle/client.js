@@ -18,14 +18,16 @@ function rebuild() {
 function getDefaultValues() {
   const element = Array.from(
     typ.querySelectorAll("[data-typst-label]"),
-  ).find((el) => el.dataset.typstLabel.startsWith("typui.init:"));
-  return JSON.parse(
-    element.dataset.typstLabel.replace("typui.init:", ""),
-  );
+  ).find((el) => el.dataset.typstLabel.startsWith("typui.defaults:"));
+
+  const raw = element.dataset.typstLabel.replace("typui.defaults:", "")
+  const pairs = raw.split(";").map(pair => pair.split("="))
+  return Object.fromEntries(pairs)
 }
 
 async function replaceUi() {
   const defaultValues = getDefaultValues();
+  console.log(defaultValues)
 
   const requested = Array.from(typ.querySelectorAll("[data-typst-label]"))
     .filter((el) => el.dataset.typstLabel.startsWith("typui-"))

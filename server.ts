@@ -8,14 +8,10 @@ const app = new Hono()
 const WORKDIR = (process.env.TYPUI_DIR || "../src") + "/"
 const PORT = +(process.env.TYPUI_PORT || 3000)
 
-const init = `#place(
-  top+right,
-  [#box[]#label("typui.init:" + json.encode(fields, pretty: false))]
-)`
-
 app.post('/compile', async (c) => {
   const variables = await c.req.text();
-  const tempFile = WORKDIR + crypto.randomUUID();
+  const tempFileName = crypto.randomUUID();
+  const tempFile = WORKDIR + tempFileName;
 
   const sourcePath = WORKDIR + (new URL(c.req.url).searchParams.get("root") || "main.typ")
   const source = await readFile(sourcePath, {encoding: "utf8"});
@@ -24,9 +20,9 @@ app.post('/compile', async (c) => {
     ? source.replace("// inject", variables)
     : source;
 
-  await writeFile(`${tempFile}.typ`, replaced + "\n" + init);
+  await writeFile(`${tempFile}.typ`, replaced);
 
-  const compilerResponse = await sh(`typst compile ${tempFile}.typ ${tempFile}-page{0p}.svg`)
+  const compilerResponse = await sh(`typst compile ${WORKDIR+"defaults.typ"} --input root="${tempFileName}.typ" ${tempFile}-page{0p}.svg`)
     .catch(
       (e) =>
         "<pre>" +

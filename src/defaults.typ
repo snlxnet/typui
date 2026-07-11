@@ -10,6 +10,7 @@
   eval(source, mode: "markup")
 }
 
+#set page(height: 0mm)
 #context {
   let result = query(<typui-default-values>)
     .first()
@@ -18,5 +19,5 @@
     .map(child => if child == [ ] { " " } else { child.text })
     .join()
 
-  place(hide[#box()[get result from here]#label(result)])
+  [#box()#label("typui.defaults:"+result)]
 }
