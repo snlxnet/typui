@@ -53,6 +53,7 @@ async function replaceUi() {
         !requested.map(({ label }) => label).includes(element.id),
     )
     .map((element) => element.remove());
+  console.log(requested)
   requested.map(updateUiElement);
 }
 
@@ -78,8 +79,6 @@ function getUiValues() {
     ["cm", cm.clientWidth],
     ["focus", `"${document.activeElement?.id?.slice(4) || ""}"`],
   ]
-
-  console.log(pairs, system)
 
   return "#{\n" + [
     ...pairs,

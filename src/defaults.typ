@@ -1,28 +1,22 @@
-#let evalled = context {
-  let delpb = "#let pagebreak(..args) = []\n"
-  let answers = delpb + read("main.typ").replace("#set ", "// ").replace("set ", "// ")
-  let question = query(<typui>)
+#let root = sys.inputs.root
+
+#context {
+  let answers = read(root)
+  let question = query(<varname-typui>)
     .map(input => input.body.text + "=#" + input.body.text)
     .join("\;")
 
-  let source = answers + "\n#box[" + question + "]<typui-results>"
+  let source = answers + "\n#place(hide[#box[" + question + "]<typui-default-values>])"
   eval(source, mode: "markup")
 }
 
-#evalled
-
-#pagebreak()
-
 #context {
-  let result = query(<typui-results>).first().body.children.map(child => {
-    if child == linebreak() {
-      " "
-    } else if child == [ ] {
-      " "
-    } else {
-      child.text
-    }
-  }).join()
+  let result = query(<typui-default-values>)
+    .first()
+    .body
+    .children
+    .map(child => if child == [ ] { " " } else { child.text })
+    .join()
 
-  [#box()[get result from here]#label(result)]
+  place(hide[#box()[get result from here]#label(result)])
 }
