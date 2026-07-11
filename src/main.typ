@@ -5,18 +5,11 @@
   roll-w: 1200,
   count: 20,
   margin: 6,
-
-  tab: [наклейки],
 )
 #let f = fields
-
-#let window-width = 900
-#let window-height = 900
-#let cm = 38
-#let focus = ""
-
 // inject
 
+#set page(height: auto, margin: 2mm)
 #let answer(expr) = str(expr)
 
 #let h = f.sticker-h + f.margin
