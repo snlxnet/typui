@@ -23,6 +23,7 @@ app.post('/compile', async (c) => {
   await writeFile(`${tempFile}.typ`, replaced);
 
   const compilerResponse = await sh(`typst compile ${WORKDIR+"defaults.typ"} --input root="${tempFileName}.typ" ${tempFile}-page{0p}.svg`)
+    .catch(() => sh(`typst compile ${tempFile}.typ ${tempFile}-page{0p}.svg`))
     .catch(
       (e) =>
         "<pre>" +
