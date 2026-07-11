@@ -27,7 +27,6 @@ function getDefaultValues() {
 
 async function replaceUi() {
   const defaultValues = getDefaultValues();
-  console.log(defaultValues)
 
   const requested = Array.from(typ.querySelectorAll("[data-typst-label]"))
     .filter((el) => el.dataset.typstLabel.startsWith("typui-"))
@@ -55,7 +54,6 @@ async function replaceUi() {
         !requested.map(({ label }) => label).includes(element.id),
     )
     .map((element) => element.remove());
-  console.log(requested)
   requested.map(updateUiElement);
 }
 
@@ -65,10 +63,10 @@ function getUiValues() {
       const name = element.id.slice(4);
       if (element.type === "number") {
         return [name, element.value || 0];
+      } else if (element.type === "text") {
+        return [name, '"' + (element.value || "") + '"'];
       } else if (element.type === "checkbox") {
         return [name, element.checked || false];
-      } else if (element.tagName === "TEXTAREA") {
-        return [name, `"${element.value || ""}"`];
       } else {
         return false;
       }
@@ -99,11 +97,7 @@ function updateUiElement({ label, bounds, defaultVal, color }) {
   element.style.top = bounds.top + "px";
   element.style.left = bounds.left + "px";
   element.style.width = bounds.width + "px";
-  if (label.startsWith("txt")) {
-    element.style.minHeight = bounds.height + "px";
-  } else {
-    element.style.height = bounds.height + "px";
-  }
+  element.style.height = bounds.height + "px";
   const lines = element.value?.split("\n")?.length || 1
   const correction = lines === 1 ? 0.7 : lines
   element.style.fontSize = bounds.height / correction + "px";
@@ -111,23 +105,19 @@ function updateUiElement({ label, bounds, defaultVal, color }) {
 
 function createUiElement(id, value) {
   const kind = id.slice(0, 3);
-  let element;
+  const element = document.createElement("input");
 
   if (kind === "num") {
-    element = document.createElement("input");
     element.type = "number";
     element.value = value;
   } else if (kind === "chk") {
-    element = document.createElement("input");
     element.type = "checkbox";
     element.checked = value;
   } else if (kind === "txt") {
-    element = document.createElement("textarea");
-    element.value = value;
-  } else {
-    element = document.createElement("input");
     element.type = "text";
     element.value = value;
+  } else {
+    alert("unknown element", id)
   }
 
   element.id = id;
