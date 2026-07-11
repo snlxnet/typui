@@ -93,10 +93,11 @@ function updateUiElement(props) {
   const element =
     document.getElementById(props.variable) || createUiElement(props);
   element.style.color = props.color;
-  element.style.top = props.bounds.top + "px";
+  element.style.top = props.bounds.top-2 + "px";
   element.style.left = props.bounds.left + "px";
   element.style.width = props.bounds.width + "px";
-  element.style.height = props.bounds.height + "px";
+  element.style.height = props.bounds.height+4 + "px";
+  element.style.fontFamily = props.font;
   element.style.fontSize = props.size;
   element.style.textAlign = props.align;
 }

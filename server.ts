@@ -17,7 +17,7 @@ app.post('/compile', async (c) => {
   const source = await readFile(sourcePath, {encoding: "utf8"});
 
   const replaced = variables
-    ? source.replace("// inject", variables)
+    ? source.replace("// ui", variables)
     : source;
 
   await writeFile(`${tempFile}.typ`, replaced);

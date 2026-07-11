@@ -8,7 +8,6 @@
 )
 
 #let _input(kind, var, width: 4em, ..args) = box(
-  stroke: 0.1mm + red,
   ..args,
   context [
     #let props = (
