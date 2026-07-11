@@ -1,4 +1,4 @@
-Status: in development, not really ready yet
+Status: Getting rid of the weird syntax and system variables
 
 ## Usage
 1. clone the dist directory
@@ -23,9 +23,10 @@ npm run build
 
 ## Missing Features
 
+- no weird system variables
+- no weird inject syntax (?)
 - proper font support
 - swap button
-- renaming the fields object
 - hot reloading
 - increment / decrement counters
 - browser-only version

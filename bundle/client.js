@@ -61,11 +61,11 @@ function getUiValues() {
     .map((element) => {
       const name = element.id.slice(4);
       if (element.type === "number") {
-        return `${name}: ${element.value || "0"}`;
+        return [name, element.value || 0];
       } else if (element.type === "checkbox") {
-        return `${name}: ${element.checked || false}`;
+        return [name, element.checked || false];
       } else if (element.tagName === "TEXTAREA") {
-        return `${name}: "${element.value || ""}"`;
+        return [name, `"${element.value || ""}"`];
       } else {
         return false;
       }
@@ -73,22 +73,24 @@ function getUiValues() {
     .filter(Boolean);
 
   const system = [
-    `window-width: ${window.innerWidth}`,
-    `window-height: ${window.innerHeight}`,
-    `cm: ${cm.clientWidth}`,
-    `focus: "${document.activeElement?.id?.slice(4) || ""}"`
+    ["window-width", window.innerWidth],
+    ["window-height", window.innerHeight],
+    ["cm", cm.clientWidth],
+    ["focus", `"${document.activeElement?.id?.slice(4) || ""}"`],
   ]
 
-  return "#let fields = (" + [
-    "..fields",
+  console.log(pairs, system)
+
+  return "#{\n" + [
     ...pairs,
-    ...system,
-  ].join(",\n") + ")";
+    // ...system,
+  ].map(([k, v]) => `  ${k} = ${v}`)
+    .join("\n") + "\n}";
 }
 
 function updateUiElement({ label, bounds, defaultVal, color }) {
   const element =
-    ui.querySelector("#" + label) || createUiElement(label, defaultVal);
+    document.getElementById(label) || createUiElement(label, defaultVal);
   element.style.position = "fixed";
   if (color) {
     element.style.color = color;
@@ -145,6 +147,7 @@ async function replaceTyp(body) {
   if (text.startsWith("<pre>")) {
     err.innerHTML = text
   } else {
+    err.innerHTML = ""
     typ.innerHTML = text
   }
 }
