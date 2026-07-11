@@ -19,10 +19,16 @@
 #let rows = calc.ceil(f.count / columns)
 #let roll-length = rows * h + 200
 
-#grid(
-  [Размеры наклейки, мм], [#num[f.sticker-w] #box(inset: (y: 2mm), sym.times) #num[f.sticker-h]],
+#[
+  #set align(center + horizon)
+  count is #f.count #num[f.count] pieces
+]
+
+#table(
+  columns: 2,
+  [Размеры наклейки, мм], [#num[f.sticker-w] #sym.times #num[f.sticker-h]],
   [Ширина рулона, м], num[f.roll-w],
-  [Количество наклеек], num[f.count],
+  // [Количество наклеек], num[f.count],
   [Длина рулона, м/п], answer(roll-length/1000),
 )
 

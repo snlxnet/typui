@@ -41,11 +41,13 @@ body {
   left: 0;
 }
 
-input, textarea {
+input {
   background: transparent;
   border: none;
   resize: none;
   overflow-y: hidden;
+  position: fixed;
+  display: flex;
 }
 input:focus, textarea:focus {
   outline: none;

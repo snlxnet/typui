@@ -7,18 +7,24 @@
   body,
 )
 
-#let _input(kind, var, ..args) = box(
-  width: 4em,
-  stroke: 1mm,
-  inset: 2mm,
+#let _input(kind, var, width: 4em, ..args) = box(
+  stroke: 0.1mm + red,
   ..args,
-  [
+  context [
+    #let props = (
+      kind: kind,
+      variable: var.text,
+      align: align.alignment.x,
+      size: text.size,
+      font: text.font,
+      color: text.fill.to-hex(),
+    )
     #place(hide[
       #_wrap(var)
       #label("varname-typui")
     ])
-    #_wrap(kind, width: 100%, height: 1em)
-    #label("typui-"+kind+"-"+var.text)
+    #_wrap(kind, width: width)
+    #label(json.encode(props, pretty: false))
   ],
 )
 
