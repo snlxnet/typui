@@ -5,6 +5,7 @@
   roll-w: 1200,
   count: 20,
   margin: 6,
+  text: "hi",
 )
 #let f = fields
 // inject
@@ -24,6 +25,8 @@
   [Количество наклеек], num[f.count],
   [Длина рулона, м/п], answer(roll-length/1000),
 )
+
+#txt[f.text]
 
 #colbreak()
 
