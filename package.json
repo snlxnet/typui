@@ -14,6 +14,8 @@
     "@types/node": "^20.11.17",
     "rolldown": "^1.1.5",
     "tsx": "^4.7.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vite": "^8.1.4",
+    "vite-plugin-singlefile": "^2.3.3"
   }
 }

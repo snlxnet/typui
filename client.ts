@@ -1,9 +1,27 @@
+type Props = {
+  kind: string,
+  variable: string,
+  align: "start" | "left" | "center" | "right" | "end",
+  size: string,
+  font: string,
+  color: string,
+  bounds: DOMRect,
+  defaultVal: string,
+}
+
 const root = new URL(window.location.href).searchParams.get("root") || "main.typ"
 
-const typ = document.getElementById("typ") as HTMLDivElement;
-const err = document.getElementById("err") as HTMLDivElement;
-const ui = document.getElementById("ui") as HTMLDivElement;
-const cm = document.getElementById("cm") as HTMLDivElement;
+const typ = createDiv("typ");
+const err = createDiv("err");
+const ui = createDiv("ui");
+const cm = createDiv("cm");
+
+function createDiv(id: string) {
+  const element = document.createElement("div")
+  element.id = id
+  document.body.appendChild(element)
+  return element
+}
 
 rebuild()
 document.addEventListener("input", rebuild);
@@ -46,8 +64,7 @@ async function replaceUi() {
       }
     })
     .filter(Boolean)
-    .map((el) => {
-
+    .map((el): Props => {
       return {
         ...el,
         defaultVal: defaultValues[el.variable],
@@ -92,17 +109,6 @@ function getUiValues() {
     ...system,
   ].map(([k, v]) => `  ${k} = ${v}`)
     .join("\n") + "\n}";
-}
-
-type Props = {
-  kind: string,
-  variable: string,
-  align: "start" | "left" | "center" | "right" | "end",
-  size: string,
-  font: string,
-  color: string,
-  bounds: DOMRect,
-  defaultVal: string,
 }
 
 function updateUiElement(props: Props) {
