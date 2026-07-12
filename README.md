@@ -1,4 +1,4 @@
-Status: Getting rid of the weird syntax and system variables
+Status: Trying to use in production & working on docs
 
 ## Usage
 
