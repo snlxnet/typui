@@ -25,7 +25,7 @@ body {
   padding: 1em;
 }
 
-#typ>svg {
+#typ > svg {
   width: 100%;
 }
 
@@ -49,7 +49,8 @@ input {
   position: fixed;
   display: flex;
 }
-input:focus, textarea:focus {
+input:focus,
+textarea:focus {
   outline: none;
 }
 
@@ -57,11 +58,11 @@ input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
 }
-input[type=number] {
+input[type="number"] {
   -moz-appearance: textfield;
 }
 
-input[type=checkbox] {
+input[type="checkbox"] {
   opacity: 0;
   cursor: pointer;
 }

@@ -1,6 +1,7 @@
-Status: Getting rid of the weird syntax and system variables
+Status: Trying to use in production & working on docs
 
 ## Usage
+
 ```typst
 #import "lib.typ": num
 
@@ -15,18 +16,21 @@ Its value: #user-number
 the `// ui` is where the app is going to update all the variables used in `num`, `txt`, `chk`.
 
 ## Starting The Server
+
 1. clone the dist directory
 2. `node server.js`
 3. copy the `Caddyfile` to wherever you need it and adjust the root path
 4. `caddy run`
 
 ## Building
+
 ```shell
 npm install
 npm run build
 ```
 
 ## Features
+
 - number inputs
 - text inputs
 - dynamic page size
@@ -37,11 +41,10 @@ npm run build
 
 ## Missing Features
 
-- no weird system variables
-- no weird inject syntax (?)
 - proper font support
 - swap button
-- hot reloading
-- increment / decrement counters
+
+Eventually:
+
 - browser-only version
 - radio buttons - can't come up with a DX I like
