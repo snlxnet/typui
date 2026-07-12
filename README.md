@@ -41,11 +41,10 @@ npm run build
 
 ## Missing Features
 
-- no weird system variables
-- no weird inject syntax (?)
 - proper font support
 - swap button
-- hot reloading
-- increment / decrement counters
+
+Eventually:
+
 - browser-only version
 - radio buttons - can't come up with a DX I like
