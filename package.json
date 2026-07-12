@@ -2,9 +2,13 @@
   "name": "typui",
   "type": "module",
   "scripts": {
-    "dev": "TYPUI_DIR=src tsx watch server.ts",
-    "build": "rolldown server.ts --file bundle/server.js --minify --platform node",
-    "start": "node dist/index.js"
+    "dev": "concurrently \"npm run dev-server\" \"npm run dev-client\"",
+    "dev-server": "TYPUI_DIR=./src concurrently \"npm run build-server -- --watch\" \"node --watch server.js\"",
+    "dev-client": "vite build --watch",
+    "build-server": "rolldown -c",
+    "build-client": "vite build",
+    "build": "npm run build-client && npm run build-server",
+    "start": "node server.js"
   },
   "dependencies": {
     "@hono/node-server": "^2.0.8",

@@ -2,6 +2,7 @@ import { serve } from '@hono/node-server'
 import { exec } from 'child_process'
 import { readFile, writeFile } from 'fs/promises'
 import { Hono } from 'hono'
+import client from "./dist/index.html"
 
 const app = new Hono()
 
@@ -14,6 +15,7 @@ const system = `#let window-width = 1280
 #let focus = ""
 `
 
+app.get("/", (c) => c.html(client))
 app.post('/compile', async (c) => {
   const variables = await c.req.text();
   const tempFileName = crypto.randomUUID();
