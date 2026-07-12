@@ -1,72 +1,49 @@
-#import "lib.typ": typui-builder
-#import "tabs.typ": tabs
-
-#let fields = (
-  выс-накл: 20,
-  шир-накл: 30,
-  шир-рулона: 1200,
-  количество: 20,
-  отступ: 6,
-  checkable: false,
-
-  window-width: 900,
-  window-height: 900,
-  cm: 38,
-  focus: "",
-)
-// inject
+#import "lib.typ" as typui
 
 #let accent = green
-#let border-normal = gray
+#let neutral = rgb("#ddd")
+#let border = neutral + 0.3mm
 
-#set text(12pt, font: "DejaVu Sans Mono")
-#set page(
-  width: fields.window-width / fields.cm * 1cm,
-  height: fields.window-height / fields.cm * 1cm,
-  columns: 2,
-  header: tabs[наклейки],
-)
+#set text(14pt, font: "JetBrainsMono NF")
+#let num(var) = typui.num(var, outset: (x: 0.6em, y: 0.6em), stroke: border, radius: 0.3em)
 
-#let raw-input = typui-builder(
-  fields,
-  checked: text(fill: accent)[#sym.checkmark Вкл],
-  unchecked: text(fill: gray)[#sym.crossmark Выкл],
-)
-#let input(var) = box(
-  width: 6em,
-  inset: 2mm,
-  stroke: 0.5mm + if fields.focus == var.text { accent } else { border-normal },
-  raw-input(var, width: 100%),
-)
+#let sticker-h = 14
+#let sticker-w = 24
+#let roll-w = 1200
+#let count = 20
+#let margin = 6
 
-#let п = fields
+// ui
 
-#let выс = п.выс-накл + п.отступ
-#let шир = п.шир-накл + п.отступ
-#let столбцы = calc.floor(п.шир-рулона / шир)
-#let строки = calc.ceil(п.количество / столбцы)
-#let длин-рулона = строки * выс + 200
+#set page(height: auto, margin: 2em)
+#let answer(expr) = str(expr)
+
+#{
+  sticker-h += margin
+  sticker-w += margin
+}
+#let columns = calc.floor(roll-w / sticker-w)
+#let rows = calc.ceil(count / columns)
+#let roll-length = rows * sticker-h + 200
 
 #grid(
   columns: 2,
   gutter: 2em,
-  align: horizon,
-  [Размеры наклейки, мм], [#input[шир-накл] #box(inset: (y: 2mm), sym.times) #input[выс-накл]],
-  [Ширина рулона, м], input[шир-рулона],
-  [Количество наклеек], input[количество],
-  [Длина рулона, м/п], text(fill: green)[#(длин-рулона/1000)],
-  [...], input[checkable]
+  [Размеры наклейки, мм], [#num[sticker-w]~~#sym.times~~#num[sticker-h]],
+  [Ширина рулона, м], num[roll-w],
+  [Количество наклеек], num[count],
+  [Длина рулона, м/п], answer(roll-length/1000),
 )
 
 #colbreak()
 
 #layout(size => {
-  let scale = size.width / п.шир-рулона
+  let scale = size.width / roll-w
   set par(spacing: 0mm, leading: 0mm)
-  box(width: п.шир-рулона*scale, height: длин-рулона*scale, stroke: 0.5mm + border-normal)[
+  box(width: roll-w*scale, height: roll-length*scale, stroke: border)[
     #set align(center + horizon)
-    #for i in range(п.количество) {
-      box(width: шир*scale, height: выс*scale, inset: calc.floor(п.отступ / 2) * scale)[
+    #for i in range(count) {
+      box(width: sticker-w*scale, height: sticker-h*scale, inset: calc.floor(margin / 2) * scale)[
         #box(width: 100%, height: 100%, stroke: 0.25mm + accent)
       ]
     }

@@ -18,31 +18,34 @@ function rebuild() {
 function getDefaultValues() {
   const element = Array.from(
     typ.querySelectorAll("[data-typst-label]"),
-  ).find((el) => el.dataset.typstLabel.startsWith("typui.init:"));
-  return JSON.parse(
-    element.dataset.typstLabel.replace("typui.init:", ""),
-  );
+  ).find((el) => el.dataset.typstLabel.startsWith("typui.defaults:"));
+
+  const raw = element.dataset.typstLabel.replace("typui.defaults:", "")
+  const pairs = raw.split(";").map(pair => pair.split("="))
+  return Object.fromEntries(pairs)
 }
 
 async function replaceUi() {
   const defaultValues = getDefaultValues();
 
   const requested = Array.from(typ.querySelectorAll("[data-typst-label]"))
-    .filter((el) => el.dataset.typstLabel.startsWith("typui-"))
     .map((el) => {
-      const label = el.dataset.typstLabel.replace("typui-", "");
-      const text = Array.from(el.querySelectorAll(".typst-text"));
-      const color = text[0]?.firstElementChild?.getAttribute("fill") || undefined;
-
-      if (label.slice(0, 3) !== "chk") {
-        text.forEach(el => el.remove())
+      try {
+        el.querySelectorAll(".typst-text").forEach(obj => obj.remove())
+        return {
+          ...JSON.parse(el.dataset.typstLabel),
+          bounds: el.getBoundingClientRect(),
+        }
+      } catch {
+        return false
       }
+    })
+    .filter(Boolean)
+    .map((el) => {
 
       return {
-        bounds: el.getBoundingClientRect(),
-        label,
-        color,
-        defaultVal: defaultValues[label.slice(4)],
+        ...el,
+        defaultVal: defaultValues[el.variable],
       };
     });
   const real = Array.from(ui.children);
@@ -50,7 +53,7 @@ async function replaceUi() {
   real
     .filter(
       (element) =>
-        !requested.map(({ label }) => label).includes(element.id),
+        !requested.map(({ variable }) => variable).includes(element.id),
     )
     .map((element) => element.remove());
   requested.map(updateUiElement);
@@ -59,13 +62,13 @@ async function replaceUi() {
 function getUiValues() {
   const pairs = Array.from(ui.children)
     .map((element) => {
-      const name = element.id.slice(4);
+      const name = element.id;
       if (element.type === "number") {
-        return `${name}: ${element.value || "0"}`;
+        return [name, element.value || 0];
+      } else if (element.type === "text") {
+        return [name, '"' + (element.value || "") + '"'];
       } else if (element.type === "checkbox") {
-        return `${name}: ${element.checked || false}`;
-      } else if (element.tagName === "TEXTAREA") {
-        return `${name}: "${element.value || ""}"`;
+        return [name, element.checked || false];
       } else {
         return false;
       }
@@ -73,61 +76,49 @@ function getUiValues() {
     .filter(Boolean);
 
   const system = [
-    `window-width: ${window.innerWidth}`,
-    `window-height: ${window.innerHeight}`,
-    `cm: ${cm.clientWidth}`,
-    `focus: "${document.activeElement?.id?.slice(4) || ""}"`
+    ["window-width", window.innerWidth],
+    ["window-height", window.innerHeight],
+    ["cm", cm.clientWidth],
+    ["focus", `"${document.activeElement?.id?.slice(4) || ""}"`],
   ]
 
-  return "#let fields = (" + [
-    "..fields",
+  return "#{\n" + [
     ...pairs,
     ...system,
-  ].join(",\n") + ")";
+  ].map(([k, v]) => `  ${k} = ${v}`)
+    .join("\n") + "\n}";
 }
 
-function updateUiElement({ label, bounds, defaultVal, color }) {
+function updateUiElement(props) {
   const element =
-    ui.querySelector("#" + label) || createUiElement(label, defaultVal);
-  element.style.position = "fixed";
-  if (color) {
-    element.style.color = color;
-  }
-  element.style.top = bounds.top + "px";
-  element.style.left = bounds.left + "px";
-  element.style.width = bounds.width + "px";
-  if (label.startsWith("txt")) {
-    element.style.minHeight = bounds.height + "px";
-  } else {
-    element.style.height = bounds.height + "px";
-  }
-  const lines = element.value?.split("\n")?.length || 1
-  const correction = lines === 1 ? 0.7 : lines
-  element.style.fontSize = bounds.height / correction + "px";
+    document.getElementById(props.variable) || createUiElement(props);
+  element.style.color = props.color;
+  element.style.top = props.bounds.top-2 + "px";
+  element.style.left = props.bounds.left + "px";
+  element.style.width = props.bounds.width + "px";
+  element.style.height = props.bounds.height+4 + "px";
+  element.style.fontFamily = props.font;
+  element.style.fontSize = props.size;
+  element.style.textAlign = props.align;
 }
 
-function createUiElement(id, value) {
-  const kind = id.slice(0, 3);
-  let element;
+function createUiElement({kind, variable, defaultVal}) {
+  const element = document.createElement("input");
 
   if (kind === "num") {
-    element = document.createElement("input");
     element.type = "number";
-    element.value = value;
+    element.value = defaultVal;
   } else if (kind === "chk") {
-    element = document.createElement("input");
     element.type = "checkbox";
-    element.checked = value;
+    element.checked = defaultVal;
   } else if (kind === "txt") {
-    element = document.createElement("textarea");
-    element.value = value;
-  } else {
-    element = document.createElement("input");
     element.type = "text";
-    element.value = value;
+    element.value = defaultVal;
+  } else {
+    alert("unknown element", kind)
   }
 
-  element.id = id;
+  element.id = variable;
   const sendFocusChange = () => element.dispatchEvent(new CustomEvent("focuswithin", { bubbles: true }))
   element.onfocus = sendFocusChange
   element.onblur = () => setTimeout(sendFocusChange, 100)
@@ -145,6 +136,7 @@ async function replaceTyp(body) {
   if (text.startsWith("<pre>")) {
     err.innerHTML = text
   } else {
+    err.innerHTML = ""
     typ.innerHTML = text
   }
 }
