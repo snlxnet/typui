@@ -15,12 +15,8 @@ Its value: #user-number
 
 the `// ui` is where the app is going to update all the variables used in `num`, `txt`, `chk`.
 
-## Starting The Server
-
-1. clone the dist directory
-2. `node server.js`
-3. copy the `Caddyfile` to wherever you need it and adjust the root path
-4. `caddy run`
+Place `server.js` (you get it from `npm run build`) in the same directory as the source files are and run it.
+I want to add automatic builds through github actions this week, so you don't have to clone the entire project.
 
 ## Building
 
