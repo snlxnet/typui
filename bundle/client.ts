@@ -1,9 +1,9 @@
 const root = new URL(window.location.href).searchParams.get("root") || "main.typ"
 
-const typ = document.getElementById("typ");
-const err = document.getElementById("err");
-const ui = document.getElementById("ui");
-const cm = document.getElementById("cm");
+const typ = document.getElementById("typ") as HTMLDivElement;
+const err = document.getElementById("err") as HTMLDivElement;
+const ui = document.getElementById("ui") as HTMLDivElement;
+const cm = document.getElementById("cm") as HTMLDivElement;
 
 rebuild()
 document.addEventListener("input", rebuild);
@@ -17,8 +17,13 @@ function rebuild() {
 
 function getDefaultValues() {
   const element = Array.from(
-    typ.querySelectorAll("[data-typst-label]"),
-  ).find((el) => el.dataset.typstLabel.startsWith("typui.defaults:"));
+    typ.querySelectorAll<HTMLElement>("[data-typst-label]"),
+  ).find((el) => el.dataset.typstLabel?.startsWith("typui.defaults:"));
+
+  if (!element?.dataset.typstLabel) {
+    console.warn("Default values not provided by the server")
+    return {}
+  }
 
   const raw = element.dataset.typstLabel.replace("typui.defaults:", "")
   const pairs = raw.split(";").map(pair => pair.split("="))
@@ -28,12 +33,12 @@ function getDefaultValues() {
 async function replaceUi() {
   const defaultValues = getDefaultValues();
 
-  const requested = Array.from(typ.querySelectorAll("[data-typst-label]"))
+  const requested = Array.from(typ.querySelectorAll<HTMLElement>("[data-typst-label]"))
     .map((el) => {
       try {
         el.querySelectorAll(".typst-text").forEach(obj => obj.remove())
         return {
-          ...JSON.parse(el.dataset.typstLabel),
+          ...JSON.parse(el.dataset.typstLabel!),
           bounds: el.getBoundingClientRect(),
         }
       } catch {
@@ -60,7 +65,7 @@ async function replaceUi() {
 }
 
 function getUiValues() {
-  const pairs = Array.from(ui.children)
+  const pairs = Array.from(ui.children as Iterable<HTMLInputElement>)
     .map((element) => {
       const name = element.id;
       if (element.type === "number") {
@@ -73,7 +78,7 @@ function getUiValues() {
         return false;
       }
     })
-    .filter(Boolean);
+    .filter(element => element !== false);
 
   const system = [
     ["window-width", window.innerWidth],
@@ -89,7 +94,18 @@ function getUiValues() {
     .join("\n") + "\n}";
 }
 
-function updateUiElement(props) {
+type Props = {
+  kind: string,
+  variable: string,
+  align: "start" | "left" | "center" | "right" | "end",
+  size: string,
+  font: string,
+  color: string,
+  bounds: DOMRect,
+  defaultVal: string,
+}
+
+function updateUiElement(props: Props) {
   const element =
     document.getElementById(props.variable) || createUiElement(props);
   element.style.color = props.color;
@@ -102,7 +118,7 @@ function updateUiElement(props) {
   element.style.textAlign = props.align;
 }
 
-function createUiElement({kind, variable, defaultVal}) {
+function createUiElement({kind, variable, defaultVal}: Props) {
   const element = document.createElement("input");
 
   if (kind === "num") {
@@ -110,12 +126,12 @@ function createUiElement({kind, variable, defaultVal}) {
     element.value = defaultVal;
   } else if (kind === "chk") {
     element.type = "checkbox";
-    element.checked = defaultVal;
+    element.checked = defaultVal === "true";
   } else if (kind === "txt") {
     element.type = "text";
     element.value = defaultVal;
   } else {
-    alert("unknown element", kind)
+    console.warn("unknown element", kind)
   }
 
   element.id = variable;
@@ -126,7 +142,7 @@ function createUiElement({kind, variable, defaultVal}) {
   return element;
 }
 
-async function replaceTyp(body) {
+async function replaceTyp(body: string) {
   const response = await fetch(`/compile?root=${root}`, {
     method: "POST",
     body: body || "// typui: no input provided",
