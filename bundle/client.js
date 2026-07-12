@@ -84,7 +84,7 @@ function getUiValues() {
 
   return "#{\n" + [
     ...pairs,
-    // ...system,
+    ...system,
   ].map(([k, v]) => `  ${k} = ${v}`)
     .join("\n") + "\n}";
 }

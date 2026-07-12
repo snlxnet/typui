@@ -8,6 +8,12 @@ const app = new Hono()
 const WORKDIR = (process.env.TYPUI_DIR || "../src") + "/"
 const PORT = +(process.env.TYPUI_PORT || 3000)
 
+const system = `#let window-width = 1280
+#let window-height = 720
+#let cm = 38
+#let focus = ""
+`
+
 app.post('/compile', async (c) => {
   const variables = await c.req.text();
   const tempFileName = crypto.randomUUID();
@@ -20,7 +26,7 @@ app.post('/compile', async (c) => {
     ? source.replace("// ui", variables)
     : source;
 
-  await writeFile(`${tempFile}.typ`, replaced);
+  await writeFile(`${tempFile}.typ`, system + replaced);
 
   const compilerResponse = await sh(`typst compile ${WORKDIR+"defaults.typ"} --input root="${tempFileName}.typ" ${tempFile}-page{0p}.svg`)
     .catch(() => sh(`typst compile ${tempFile}.typ ${tempFile}-page{0p}.svg`))
