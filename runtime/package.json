@@ -1,9 +1,9 @@
 {
-  "name": "typui",
+  "name": "dyno",
   "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run dev-server\" \"npm run dev-client\"",
-    "dev-server": "TYPUI_DIR=./src concurrently \"npm run build-server -- --watch\" \"node --watch dist/server.js\"",
+    "dev-server": "DYNO_DIR=./src concurrently \"npm run build-server -- --watch\" \"node --watch dist/server.js\"",
     "dev-client": "vite build --watch",
     "build-server": "rolldown -c",
     "build-client": "vite build",
@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
+    "concurrently": "^10.0.3",
     "rolldown": "^1.1.5",
     "tsx": "^4.7.1",
     "typescript": "^5.8.3",

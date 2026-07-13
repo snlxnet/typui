@@ -1,11 +1,11 @@
-#import "lib.typ" as typui
+#import "lib.typ" as dyno
 
 #let accent = green
 #let neutral = rgb("#ddd")
 #let border = neutral + 0.3mm
 
 #set text(14pt, font: "JetBrainsMono NF")
-#let num(var) = typui.num(var, outset: (x: 0.6em, y: 0.6em), stroke: border, radius: 0.3em)
+#let num(var) = dyno.num(var, outset: (x: 0.6em, y: 0.6em), stroke: border, radius: 0.3em)
 
 #let sticker-h = 14
 #let sticker-w = 24

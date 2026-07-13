@@ -20,7 +20,7 @@
     )
     #place(hide[
       #_wrap(var)
-      #label("varname-typui")
+      #label("varname-dyno")
     ])
     #_wrap(kind, width: width)
     #label(json.encode(props, pretty: false))

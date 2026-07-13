@@ -37,14 +37,14 @@ function rebuild() {
 function getDefaultValues() {
   const element = Array.from(
     typ.querySelectorAll<HTMLElement>("[data-typst-label]"),
-  ).find((el) => el.dataset.typstLabel?.startsWith("typui.defaults:"));
+  ).find((el) => el.dataset.typstLabel?.startsWith("dyno.defaults:"));
 
   if (!element?.dataset.typstLabel) {
     console.warn("Default values not provided by the server");
     return {};
   }
 
-  const raw = element.dataset.typstLabel.replace("typui.defaults:", "");
+  const raw = element.dataset.typstLabel.replace("dyno.defaults:", "");
   const pairs = raw.split(";").map((pair) => pair.split("="));
   return Object.fromEntries(pairs);
 }
@@ -155,7 +155,7 @@ function createUiElement({ kind, variable, defaultVal }: Props) {
 async function replaceTyp(body: string) {
   const response = await fetch(`/compile?root=${root}`, {
     method: "POST",
-    body: body || "// typui: no input provided",
+    body: body || "// dyno: no input provided",
   });
   const text = await response.text();
 

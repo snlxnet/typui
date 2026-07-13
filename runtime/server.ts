@@ -6,8 +6,8 @@ import client from "./dist/index.html";
 
 const app = new Hono();
 
-const WORKDIR = (process.env.TYPUI_DIR || "./") + "/";
-const PORT = +(process.env.TYPUI_PORT || 3000);
+const WORKDIR = (process.env.DYNO_DIR || "./") + "/";
+const PORT = +(process.env.DYNO_PORT || 3000);
 
 const system = `#let window-width = 1280
 #let window-height = 720
