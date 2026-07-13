@@ -3,12 +3,12 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run dev-server\" \"npm run dev-client\"",
-    "dev-server": "DYNO_DIR=./src concurrently \"npm run build-server -- --watch\" \"node --watch dist/server.js\"",
+    "dev-server": "DYNO_DIR=../dx concurrently \"npm run build-server -- --watch\" \"node --watch server.js\"",
     "dev-client": "vite build --watch",
     "build-server": "rolldown -c",
     "build-client": "vite build",
     "build": "npm run build-client && npm run build-server && rm dist/index.html",
-    "start": "node dist/server.js"
+    "start": "node server.js"
   },
   "dependencies": {
     "@hono/node-server": "^2.0.8",

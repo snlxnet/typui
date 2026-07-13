@@ -27,6 +27,15 @@
   ],
 )
 
+#let swp(var-a, var-b, body, ..args) = [
+  #let props = (
+    kind: "swp",
+    variable: var-a + ";" + var-b,
+  )
+  #box(..args, body)
+  #label(json.encode(props, pretty: false))
+]
+
 #let txt(var, ..args) = _input("txt", var, ..args)
 #let num(var, ..args) = _input("num", var, ..args)
 #let chk(var, ..args) = _input("chk", var, ..args)

@@ -6,6 +6,7 @@
 
 #set text(14pt, font: "JetBrainsMono NF")
 #let num(var) = dyno.num(var, outset: (x: 0.6em, y: 0.6em), stroke: border, radius: 0.3em)
+#let swp(a, b, body) = dyno.swp(a, b, stroke: border, inset: (x: 0.6em), outset: (y: 0.6em), radius: 0.3em, width: 2em, align(horizon + center, body))
 
 #let sticker-h = 14
 #let sticker-w = 24
@@ -29,7 +30,13 @@
 #grid(
   columns: 2,
   gutter: 2em,
-  [Размеры наклейки, мм], [#num[sticker-w]~~#sym.times~~#num[sticker-h]],
+  [Размеры наклейки, мм], grid(
+    columns: 3,
+    gutter: 1em,
+    num[sticker-w],
+    swp("sticker-w", "sticker-h")[#sym.arrow.l.r],
+    num[sticker-h],
+  ),
   [Ширина рулона, м], num[roll-w],
   [Количество наклеек], num[count],
   [Длина рулона, м/п], answer(roll-length/1000),

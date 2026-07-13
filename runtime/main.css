@@ -41,7 +41,8 @@ body {
   left: 0;
 }
 
-input {
+input,
+.swp {
   background: transparent;
   border: none;
   resize: none;
@@ -50,7 +51,7 @@ input {
   display: flex;
 }
 input:focus,
-textarea:focus {
+.swp:focus {
   outline: none;
 }
 
@@ -62,7 +63,7 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-input[type="checkbox"] {
+button, input[type="checkbox"] {
   opacity: 0;
   cursor: pointer;
 }
