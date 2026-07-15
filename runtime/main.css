@@ -63,7 +63,8 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-button, input[type="checkbox"] {
+button,
+input[type="checkbox"] {
   opacity: 0;
   cursor: pointer;
 }

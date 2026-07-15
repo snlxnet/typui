@@ -34,10 +34,16 @@ npm run build
 - checkboxes
 - focus tracking
 - dyn guess on data type
+- proper font support
+
+## Font Loading
+
+1. Place a `.ttf` or `.otf` font in the same directory as the source Typst files
+2. Rename the file so it matches the font family name (e.g. `DepartureMono-Regular.otf` -> `Departure Mono.otf`)
+3. Use it in Typst (`#set text(font: "Departure Mono")`)
 
 ## Missing Features
 
-- proper font support
 - swap button
 
 Eventually:

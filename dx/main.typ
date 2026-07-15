@@ -4,7 +4,7 @@
 #let neutral = rgb("#ddd")
 #let border = neutral + 0.3mm
 
-#set text(14pt, font: "JetBrainsMono NF")
+#set text(14pt, font: "Departure Mono")
 #let num(var) = dyno.num(var, outset: (x: 0.6em, y: 0.6em), stroke: border, radius: 0.3em)
 #let swp(a, b, body) = dyno.swp(a, b, stroke: border, inset: (x: 0.6em), outset: (y: 0.6em), radius: 0.3em, width: 2em, align(horizon + center, body))
 

@@ -16,6 +16,15 @@ const system = `#let window-width = 1280
 `;
 
 app.get("/", (c) => c.html(client));
+app.get("/font", async (c) => {
+  const name = new URL(c.req.url).searchParams.get("name")!;
+  const otf = await readFile(WORKDIR + name + ".otf").catch(() => null);
+  const ttf = await readFile(WORKDIR + name + ".ttf").catch(() => null);
+  const font = otf || ttf || "not found";
+  const mime = otf ? "font/otf" : "font/ttf";
+
+  return new Response(font, { headers: { "Content-Type": mime } });
+});
 app.post("/compile", async (c) => {
   const variables = await c.req.text();
   const tempFileName = crypto.randomUUID();
@@ -30,7 +39,7 @@ app.post("/compile", async (c) => {
   await writeFile(`${tempFile}.typ`, system + replaced);
 
   const compilerResponse = await sh(
-    `typst compile ${WORKDIR + "defaults.typ"} --input root="${tempFileName}.typ" ${tempFile}-page{0p}.svg`,
+    `typst compile ${WORKDIR + "defaults.typ"} --font-path=${WORKDIR} --input root="${tempFileName}.typ" ${tempFile}-page{0p}.svg`,
   )
     .catch(() => sh(`typst compile ${tempFile}.typ ${tempFile}-page{0p}.svg`))
     .catch(
