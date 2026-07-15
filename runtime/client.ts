@@ -8,7 +8,7 @@ type InputProps = {
   bounds: DOMRect;
   element: Element;
   defaultVal: string;
-}
+};
 type SwapButtonProps = {
   kind: "swp";
   variable: string;
@@ -32,14 +32,14 @@ function createDiv(id: string) {
   return element;
 }
 
-rebuild();
+rebuild().then(loadFonts);
 document.addEventListener("input", rebuild);
 document.addEventListener("focuswithin", rebuild);
 window.addEventListener("resize", rebuild);
 document.addEventListener("scroll", replaceUi);
 
 function rebuild() {
-  replaceTyp(getUiValues()).then(replaceUi);
+  return replaceTyp(getUiValues()).then(replaceUi);
 }
 
 function getDefaultValues() {
@@ -55,6 +55,21 @@ function getDefaultValues() {
   const raw = element.dataset.typstLabel.replace("dyno.defaults:", "");
   const pairs = raw.split(";").map((pair) => pair.split("="));
   return Object.fromEntries(pairs);
+}
+
+function loadFonts() {
+  const requestedWithDuplicates = Array.from(
+    ui.children as Iterable<HTMLInputElement>,
+  )
+    .map((element) => element.style.fontFamily.replaceAll('"', ""))
+    .filter(Boolean);
+  const requested = [...new Set(requestedWithDuplicates)];
+
+  const fonts = requested.map(
+    (name) => new FontFace(name, `url("/font?name=${name}")`),
+  );
+
+  fonts.map((font) => document.fonts.add(font));
 }
 
 async function replaceUi() {
@@ -125,11 +140,14 @@ function getInputValue(element: HTMLInputElement) {
   }
 }
 
-function setInputValue(element: HTMLInputElement, value: number | string | boolean) {
+function setInputValue(
+  element: HTMLInputElement,
+  value: number | string | boolean,
+) {
   if (typeof value === "boolean") {
-    element.checked = value
+    element.checked = value;
   } else {
-    element.value = String(value)
+    element.value = String(value);
   }
 }
 
@@ -142,8 +160,13 @@ function updateUiElement(props: Props) {
   element.style.width = props.bounds.width + "px";
   element.style.height = props.bounds.height + 4 + "px";
 
+  if (props.kind === "txt" || props.kind === "num") {
+    props.element
+      .querySelectorAll(".typst-text")
+      .forEach((obj) => obj.remove());
+  }
+
   if (props.kind !== "swp") {
-    props.element.querySelectorAll(".typst-text").forEach((obj) => obj.remove());
     element.style.color = props.color;
     element.style.fontFamily = props.font;
     element.style.fontSize = props.size;
@@ -153,32 +176,32 @@ function updateUiElement(props: Props) {
 
 function createUiElement(props: Props) {
   if (props.kind === "swp") {
-    return createSwapButton(props)
+    return createSwapButton(props);
   }
 
-  return createInput(props)
+  return createInput(props);
 }
 
 function createSwapButton(props: SwapButtonProps) {
-  const [a, b] = props.variable.split(";")
-  
-  const element = document.createElement("button")
-  element.classList.add("swp")
-  element.id = props.variable
+  const [a, b] = props.variable.split(";");
+
+  const element = document.createElement("button");
+  element.classList.add("swp");
+  element.id = props.variable;
 
   element.addEventListener("click", () => {
-    const input1 = document.getElementById(a) as HTMLInputElement
-    const input2 = document.getElementById(b) as HTMLInputElement
-    const [_key1, value1] = getInputValue(input1)
-    const [_key2, value2] = getInputValue(input2)
-    setInputValue(input1, value2)
-    setInputValue(input2, value1)
+    const input1 = document.getElementById(a) as HTMLInputElement;
+    const input2 = document.getElementById(b) as HTMLInputElement;
+    const [_key1, value1] = getInputValue(input1);
+    const [_key2, value2] = getInputValue(input2);
+    setInputValue(input1, value2);
+    setInputValue(input2, value1);
     element.dispatchEvent(new CustomEvent("input", { bubbles: true }));
-  })
+  });
 
-  ui.appendChild(element)
+  ui.appendChild(element);
 
-  return element
+  return element;
 }
 
 function createInput({ kind, variable, defaultVal }: InputProps) {
