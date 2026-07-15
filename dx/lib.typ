@@ -7,7 +7,7 @@
   body,
 )
 
-#let _input(kind, var, width: 4em, ..args) = box(
+#let _input(kind, var, width: 4em, ..args, body: []) = box(
   ..args,
   context [
     #let props = (
@@ -22,7 +22,7 @@
       #_wrap(var)
       #label("varname-dyno")
     ])
-    #_wrap(kind, width: width)
+    #_wrap(if body == [] { kind } else { body }, width: width)
     #label(json.encode(props, pretty: false))
   ],
 )
@@ -38,4 +38,4 @@
 
 #let txt(var, ..args) = _input("txt", var, ..args)
 #let num(var, ..args) = _input("num", var, ..args)
-#let chk(var, ..args) = _input("chk", var, ..args)
+#let chk(var, body, ..args) = _input("chk", var, ..args, body: body)

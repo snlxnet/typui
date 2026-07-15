@@ -41,6 +41,10 @@ body {
   left: 0;
 }
 
+input {
+  transform: translateY(-50%);
+}
+
 input,
 .swp {
   background: transparent;
@@ -67,4 +71,5 @@ button,
 input[type="checkbox"] {
   opacity: 0;
   cursor: pointer;
+  transform: none;
 }

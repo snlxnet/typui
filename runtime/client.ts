@@ -155,15 +155,18 @@ function updateUiElement(props: Props) {
   const element =
     document.getElementById(props.variable) || createUiElement(props);
 
-  element.style.top = props.bounds.top - 2 + "px";
   element.style.left = props.bounds.left + "px";
   element.style.width = props.bounds.width + "px";
-  element.style.height = props.bounds.height + 4 + "px";
 
   if (props.kind === "txt" || props.kind === "num") {
+    element.style.top = (props.bounds.bottom + props.bounds.top) / 2 + "px";
+
     props.element
       .querySelectorAll(".typst-text")
       .forEach((obj) => obj.remove());
+  } else {
+    element.style.top = props.bounds.top + "px";
+    element.style.height = props.bounds.height + "px";
   }
 
   if (props.kind !== "swp") {

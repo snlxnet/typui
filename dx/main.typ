@@ -7,12 +7,14 @@
 #set text(14pt, font: "Departure Mono")
 #let num(var) = dyno.num(var, outset: (x: 0.6em, y: 0.6em), stroke: border, radius: 0.3em)
 #let swp(a, b, body) = dyno.swp(a, b, stroke: border, inset: (x: 0.6em), outset: (y: 0.6em), radius: 0.3em, width: 2em, align(horizon + center, body))
+#let chk(var, body) = dyno.chk(var, outset: 0.6em, stroke: border, radius: 0.3em, body)
 
 #let sticker-h = 14
 #let sticker-w = 24
 #let roll-w = 1200
 #let count = 20
 #let margin = 6
+#let checkbox = false
 
 // ui
 
@@ -40,6 +42,7 @@
   [Ширина рулона, м], num[roll-w],
   [Количество наклеек], num[count],
   [Длина рулона, м/п], answer(roll-length/1000),
+  [Галочка], chk([checkbox], if checkbox [#sym.checkmark] else [#sym.crossmark]),
 )
 
 #colbreak()
