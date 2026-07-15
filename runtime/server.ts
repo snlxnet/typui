@@ -39,7 +39,7 @@ app.post("/compile", async (c) => {
   await writeFile(`${tempFile}.typ`, system + replaced);
 
   const compilerResponse = await sh(
-    `typst compile ${WORKDIR + "defaults.typ"} --ignore-system-fonts --font-path=${WORKDIR} --input root="${tempFileName}.typ" ${tempFile}-page{0p}.svg`,
+    `typst compile ${WORKDIR + "defaults.typ"} --font-path=${WORKDIR} --input root="${tempFileName}.typ" ${tempFile}-page{0p}.svg`,
   )
     .catch(() => sh(`typst compile ${tempFile}.typ ${tempFile}-page{0p}.svg`))
     .catch(
