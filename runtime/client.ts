@@ -116,7 +116,7 @@ function getUiValues() {
     ["window-width", window.innerWidth],
     ["window-height", window.innerHeight],
     ["cm", cm.clientWidth],
-    ["focus", `"${document.activeElement?.id?.slice(4) || ""}"`],
+    ["focus", `"${document.activeElement?.id || ""}"`],
   ];
 
   return (

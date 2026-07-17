@@ -3,11 +3,19 @@
 #let accent = green
 #let neutral = rgb("#ddd")
 #let border = neutral + 0.3mm
+#let highlight = state("highlight", "")
+#let field-style(var) = (
+    inset: 0.6em,
+    baseline: 0.6em,
+    radius: 0.3em,
+    stroke: 0.3mm + if highlight.get() == var { accent } else { neutral },
+)
 
 #set text(14pt, font: "Departure Mono")
-#let num(var) = dyno.num(var, outset: (x: 0.6em, y: 0.6em), stroke: border, radius: 0.3em)
-#let swp(a, b, body) = dyno.swp(a, b, stroke: border, inset: (x: 0.6em), outset: (y: 0.6em), radius: 0.3em, width: 2em, align(horizon + center, body))
-#let chk(var, body) = dyno.chk(var, outset: 0.6em, stroke: border, radius: 0.3em, body)
+
+#let num(var) = context dyno.num(var, ..field-style(var.text))
+#let swp(a, b, body) = context dyno.swp(a, b, ..field-style(a+";"+b), align(horizon + center, body))
+#let chk(var, body) = context dyno.chk(var, ..field-style(var.text), body)
 
 #let sticker-h = 14
 #let sticker-w = 24
@@ -16,7 +24,10 @@
 #let margin = 6
 #let checkbox = false
 
+#let focus = ""
+
 // ui
+#context highlight.update((_) => focus)
 
 #set page(height: auto, margin: 2em)
 #let answer(expr) = str(expr)
