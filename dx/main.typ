@@ -1,5 +1,8 @@
 #import "lib.typ" as dyno
 
+#set page(height: auto, margin: 2em)
+#let answer(expr) = str(expr)
+
 #let accent = green
 #let neutral = rgb("#ddd")
 #let border = neutral + 0.3mm
@@ -24,13 +27,20 @@
 #let margin = 6
 #let checkbox = false
 
-#let focus = ""
+#let exclusive = (
+  first: false,
+  second: false,
+  third: false,
+)
+#dyno.mutex(
+  "exclusive.first",
+  "exclusive.second",
+  "exclusive.third",
+)
 
+#let focus = ""
 // ui
 #context highlight.update((_) => focus)
-
-#set page(height: auto, margin: 2em)
-#let answer(expr) = str(expr)
 
 #{
   sticker-h += margin
@@ -55,6 +65,11 @@
   [Длина рулона, м/п], answer(roll-length/1000),
   [Галочка], chk([checkbox], if checkbox [#sym.checkmark] else [#sym.crossmark]),
 )
+
+Mutually exclusive fields:
+- #chk([exclusive.first], if exclusive.first [#sym.checkmark] else [#sym.crossmark])
+- #chk([exclusive.second], if exclusive.second [#sym.checkmark] else [#sym.crossmark])
+- #chk([exclusive.third], if exclusive.third [#sym.checkmark] else [#sym.crossmark])
 
 #colbreak()
 

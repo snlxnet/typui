@@ -24,6 +24,7 @@ const typ = createDiv("typ");
 const err = createDiv("err");
 const ui = createDiv("ui");
 const cm = createDiv("cm");
+let mutexes: string[][] = []; // mutually exclusive values
 
 function createDiv(id: string) {
   const element = document.createElement("div");
@@ -38,8 +39,12 @@ document.addEventListener("focuswithin", rebuild);
 window.addEventListener("resize", rebuild);
 document.addEventListener("scroll", replaceUi);
 
-function rebuild() {
-  return replaceTyp(getUiValues()).then(replaceUi);
+function rebuild(event?: Event) {
+  const target = (event?.target as Element | undefined)?.id;
+  if (target && event?.type === "input") {
+    enforceMutex(target);
+  }
+  return replaceTyp(getUiValues()).then(replaceUi).then(setupMutex);
 }
 
 function getDefaultValues() {
@@ -55,6 +60,27 @@ function getDefaultValues() {
   const raw = element.dataset.typstLabel.replace("dyno.defaults:", "");
   const pairs = raw.split(";").map((pair) => pair.split("="));
   return Object.fromEntries(pairs);
+}
+
+function setupMutex() {
+  mutexes = Array.from(typ.querySelectorAll<HTMLElement>("[data-typst-label]"))
+    .filter((el) => el.dataset.typstLabel?.startsWith("dyno.mutex:"))
+    .map((el) => el.dataset.typstLabel!.replace("dyno.mutex:", "").split(";"));
+}
+
+function enforceMutex(targetId: string) {
+  mutexes
+    .filter((rule) => rule.includes(targetId))
+    .flatMap((rule) => rule.filter((id) => id !== targetId))
+    .map((id) => document.getElementById(id) as HTMLInputElement | null)
+    .filter((el) => el !== null)
+    .forEach((el) => {
+      if (el.type === "checkbox") {
+        el.checked = false;
+      } else {
+        el.value = "";
+      }
+    });
 }
 
 function loadFonts() {

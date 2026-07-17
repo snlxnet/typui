@@ -39,3 +39,5 @@
 #let txt(var, ..args) = _input("txt", var, ..args)
 #let num(var, ..args) = _input("num", var, ..args)
 #let chk(var, body, ..args) = _input("chk", var, ..args, body: body)
+
+#let mutex(..vars) = place[#box()#label("dyno.mutex:" + vars.pos().join(";"))]
