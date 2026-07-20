@@ -7,7 +7,7 @@
   body,
 )
 
-#let _input(kind, var, width: 4em, ..args, body: []) = box(
+#let _input(kind, var, width: 4em, ..args, options: (), body: []) = box(
   ..args,
   context [
     #let props = (
@@ -17,6 +17,7 @@
       size: text.size,
       font: text.font,
       color: text.fill.to-hex(),
+      options: options,
     )
     #place(hide[
       #_wrap(var)
@@ -36,6 +37,7 @@
   #label(json.encode(props, pretty: false))
 ]
 
+#let sel(var, options, ..args) = _input("sel", var, options: options, ..args)
 #let txt(var, ..args) = _input("txt", var, ..args)
 #let num(var, ..args) = _input("num", var, ..args)
 #let chk(var, body, ..args) = _input("chk", var, ..args, body: body)

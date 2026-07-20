@@ -19,6 +19,7 @@
 #let num(var) = context dyno.num(var, ..field-style(var.text))
 #let swp(a, b, body) = context dyno.swp(a, b, ..field-style(a+";"+b), align(horizon + center, body))
 #let chk(var, body) = context dyno.chk(var, ..field-style(var.text), body)
+#let sel(var, options) = context dyno.sel(var, options, ..field-style(var.text))
 
 #let sticker-h = 14
 #let sticker-w = 24
@@ -26,6 +27,7 @@
 #let count = 20
 #let margin = 6
 #let checkbox = false
+#let select = "zero"
 
 #let exclusive = (
   first: false,
@@ -70,6 +72,11 @@ Mutually exclusive fields:
 - #chk([exclusive.first], if exclusive.first [#sym.checkmark] else [#sym.crossmark])
 - #chk([exclusive.second], if exclusive.second [#sym.checkmark] else [#sym.crossmark])
 - #chk([exclusive.third], if exclusive.third [#sym.checkmark] else [#sym.crossmark])
+
+Select field:
+#sel([select], ("zero", "one", "two", "three"))
+
+Value: #repr(select)
 
 #colbreak()
 

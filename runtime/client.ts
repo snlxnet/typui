@@ -1,6 +1,7 @@
 type InputProps = {
-  kind: "txt" | "num" | "chk";
+  kind: "txt" | "num" | "chk" | "sel";
   variable: string;
+  options: string[]; // for select, otherwise empty
   align: "start" | "left" | "center" | "right" | "end";
   size: string;
   font: string;
@@ -157,7 +158,10 @@ function getInputValue(element: HTMLInputElement) {
 
   if (element.type === "number") {
     return [name, element.value || 0];
-  } else if (element.type === "text") {
+  } else if (
+    element.type === "text" ||
+    element.tagName.toLowerCase() === "select"
+  ) {
     return [name, '"' + (element.value || "") + '"'];
   } else if (element.type === "checkbox") {
     return [name, element.checked || false];
@@ -184,7 +188,7 @@ function updateUiElement(props: Props) {
   element.style.left = props.bounds.left + "px";
   element.style.width = props.bounds.width + "px";
 
-  if (props.kind === "txt" || props.kind === "num") {
+  if (props.kind === "txt" || props.kind === "num" || props.kind === "sel") {
     element.style.top = (props.bounds.bottom + props.bounds.top) / 2 + "px";
 
     props.element
@@ -233,19 +237,31 @@ function createSwapButton(props: SwapButtonProps) {
   return element;
 }
 
-function createInput({ kind, variable, defaultVal }: InputProps) {
-  const element = document.createElement("input");
+function createInput({ kind, variable, options, defaultVal }: InputProps) {
+  let element: HTMLInputElement | HTMLSelectElement;
 
   if (kind === "num") {
+    element = document.createElement("input");
     element.type = "number";
     element.value = defaultVal;
   } else if (kind === "chk") {
+    element = document.createElement("input");
     element.type = "checkbox";
     element.checked = defaultVal === "true";
   } else if (kind === "txt") {
+    element = document.createElement("input");
     element.type = "text";
     element.value = defaultVal;
+  } else if (kind === "sel") {
+    element = document.createElement("select");
+    options.forEach((name) => {
+      const option = document.createElement("option");
+      option.text = name;
+      option.value = name;
+      element.appendChild(option);
+    });
   } else {
+    element = document.createElement("input");
     console.warn("unknown element", kind);
   }
 
