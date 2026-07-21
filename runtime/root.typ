@@ -1,16 +1,34 @@
-#import "lib.typ": num as num-input
+#import "lib.typ": input as inp
 
 = Hello, world
 
 #let answer = 42
 
-#num-input(answer)
+#inp(answer)
 
 The answer is #answer
 
-#let var2 = 10
+#let var2 = false
 
-#num-input(
+#inp(
   fill: none,
   var2,
 )
+
+/*
+Doc for the future:
+
+#let number = 42
+#let checkbox = false
+#let text = "string"
+#let toggle = [on\ off]
+#let select = [
+  first\
+  second\
+  third
+]
+
+render input: #input(number)
+
+get options: #options(toggle)
+*/

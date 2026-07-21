@@ -4,8 +4,8 @@ import { readFile, writeFile } from "fs/promises";
 import { Hono } from "hono";
 import client from "./dist/index.html";
 import { buildLSP } from "./lsp.js";
-import path from "path";
 import { fileURLToPath } from "url";
+import { getVars } from "./getVars.ts";
 
 const app = new Hono();
 
@@ -75,24 +75,9 @@ app.get("/explore", async (c) => {
 
 setTimeout(explore, 1000)
 
-type Location = {
-  uri: string,
-  range: Range
-}
-
-type Range = {
-  start: Position,
-  end: Position
-}
-
-type Position = {
-  line: number,
-  character: number,
-}
-
 async function explore() {
-  const fileUri = `file://${WORKDIR}root.typ`
-  const LIB_URI = `file://${WORKDIR}lib.typ`
+  const fileUri = `file://${WORKDIR}root.typ`;
+  const libUri = `file://${WORKDIR}lib.typ`;
 
   const filePath = fileURLToPath(fileUri)
   const fileBody = await readFile(filePath, {encoding: "utf-8"})
@@ -117,100 +102,14 @@ async function explore() {
     ],
   });
 
-  lsp.request("textDocument/references", {
-      context: {
-        includeDeclaration: true,
-      },
-      textDocument: {
-        uri: LIB_URI,
-      },
-      position: {
-        line: 0,
-        character: 6,
-      },
+  const vars = await getVars({
+    fileUri,
+    fileBody,
+    libUri,
+    lsp,
   })
 
-  lsp.subscribe((message) => {
-    if (!Array.isArray(message?.result)) {
-      return;
-    }
-    if (!message.result[0]?.range || !message.result[0]?.uri) {
-      return
-    }
-
-    const allReferences: Location[] = message.result
-    const references = allReferences.filter(ref => ref.uri === fileUri).map(ref => ref.range)
-    const refLineNumbers = references.map(ref => ref.end.line)
-
-    const triggers = fileBody.split("\n")
-      .map((line, idx) => {
-        const ref = references.find(ref => ref.end.line === idx)
-
-        if (!ref) {
-          return null
-        }
-
-        const nextChar = line.at(ref.end.character)
-        if (nextChar !== "(") {
-          return null
-        }
-
-        return ref.end
-      })
-      .filter(pos => pos !== null)
-
-    let x = 0
-    let y = 0
-    let bracketDepth = 0
-    let weCare = false
-
-    let starts: number[] = []
-    let ends: number[] = []
-
-    fileBody.split("").forEach((char, idx) => {
-      if (char === "\n") {
-        x = 0
-        y++
-        return
-      }
-
-      if (triggers.find(pos => pos.character === x && pos.line === y)) {
-        bracketDepth = 0
-        weCare = true
-        starts.push(idx+1)
-      }
-
-      if (char === "(") bracketDepth++
-      if (char === ")") bracketDepth--
-
-      if (bracketDepth === 0 && weCare) {
-        ends.push(idx)
-        weCare = false
-      }
-
-      x++
-    })
-
-    const ranges: [number, number][] = starts.map((start, idx) => ([start, ends[idx]]))
-
-    const vars: [number, number][] = ranges.map(([start, end]) => {
-      const text = fileBody.slice(start, end)
-      const args = text.split(",").map(slice => slice + ",")
-
-      const variableArg = args.findIndex(arg => !arg.includes(":"))
-      const lenBefore = args.slice(0, variableArg)
-        .map(arg => arg.length)
-        .reduce((acc, current) => acc+current, 0)
-      const whitespace = args[variableArg].match(/^\s+/)?.[0].length || 0
-
-      return [
-        start + lenBefore + whitespace,
-        start + lenBefore + args[variableArg].length - 1,
-      ]
-    })
-
-    console.log(vars.map(range => fileBody.slice(...range)))
-  })
+  console.log(vars)
 }
 
 serve(
