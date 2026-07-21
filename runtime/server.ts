@@ -67,34 +67,35 @@ app.post("/compile", async (c) => {
   return new Response(compilerResponse || output);
 });
 app.get("/explore", async (c) => {
+
   const response = {};
 
   return c.json(response);
 });
 
-setTimeout(explore, 1000);
+setTimeout(explore, 1000)
 
 type Location = {
-  uri: string;
-  range: Range;
-};
+  uri: string,
+  range: Range
+}
 
 type Range = {
-  start: Position;
-  end: Position;
-};
+  start: Position,
+  end: Position
+}
 
 type Position = {
-  line: number;
-  character: number;
-};
+  line: number,
+  character: number,
+}
 
 async function explore() {
-  const fileUri = `file://${WORKDIR}root.typ`;
-  const LIB_URI = `file://${WORKDIR}lib.typ`;
+  const fileUri = `file://${WORKDIR}root.typ`
+  const LIB_URI = `file://${WORKDIR}lib.typ`
 
-  const filePath = fileURLToPath(fileUri);
-  const fileBody = await readFile(filePath, { encoding: "utf-8" });
+  const filePath = fileURLToPath(fileUri)
+  const fileBody = await readFile(filePath, {encoding: "utf-8"})
 
   lsp.notify("textDocument/didOpen", {
     textDocument: {
@@ -107,103 +108,109 @@ async function explore() {
 
   await lsp.request("workspace/executeCommand", {
     command: "tinymist.doStartBrowsingPreview",
-    arguments: [["--data-plane-host", "127.0.0.1:4343", filePath]],
+    arguments: [
+      [
+        "--data-plane-host",
+        "127.0.0.1:4343",
+        filePath,
+      ],
+    ],
   });
 
   lsp.request("textDocument/references", {
-    context: {
-      includeDeclaration: true,
-    },
-    textDocument: {
-      uri: LIB_URI,
-    },
-    position: {
-      line: 0,
-      character: 6,
-    },
-  });
+      context: {
+        includeDeclaration: true,
+      },
+      textDocument: {
+        uri: LIB_URI,
+      },
+      position: {
+        line: 0,
+        character: 6,
+      },
+  })
 
   lsp.subscribe((message) => {
     if (!Array.isArray(message?.result)) {
       return;
     }
     if (!message.result[0]?.range || !message.result[0]?.uri) {
-      return;
+      return
     }
 
-    const allReferences: Location[] = message.result;
-    const references = allReferences
-      .filter((ref) => ref.uri === fileUri)
-      .map((ref) => ref.range);
-    const refLineNumbers = references.map((ref) => ref.end.line);
+    const allReferences: Location[] = message.result
+    const references = allReferences.filter(ref => ref.uri === fileUri).map(ref => ref.range)
+    const refLineNumbers = references.map(ref => ref.end.line)
 
-    const triggers = fileBody
-      .split("\n")
+    const triggers = fileBody.split("\n")
       .map((line, idx) => {
-        const ref = references.find((ref) => ref.end.line === idx);
+        const ref = references.find(ref => ref.end.line === idx)
 
         if (!ref) {
-          return null;
+          return null
         }
 
-        const nextChar = line.at(ref.end.character);
+        const nextChar = line.at(ref.end.character)
         if (nextChar !== "(") {
-          return null;
+          return null
         }
 
-        return ref.end;
+        return ref.end
       })
-      .filter((pos) => pos !== null);
+      .filter(pos => pos !== null)
 
-    let x = 0;
-    let y = 0;
-    let bracketDepth = 0;
-    let weCare = false;
+    let x = 0
+    let y = 0
+    let bracketDepth = 0
+    let weCare = false
 
-    let starts: number[] = [];
-    let ends: number[] = [];
+    let starts: number[] = []
+    let ends: number[] = []
 
     fileBody.split("").forEach((char, idx) => {
       if (char === "\n") {
-        x = 0;
-        y++;
-        return;
+        x = 0
+        y++
+        return
       }
 
-      if (triggers.find((pos) => pos.character === x && pos.line === y)) {
-        bracketDepth = 0;
-        weCare = true;
-        starts.push(idx + 1);
+      if (triggers.find(pos => pos.character === x && pos.line === y)) {
+        bracketDepth = 0
+        weCare = true
+        starts.push(idx+1)
       }
 
-      if (char === "(") bracketDepth++;
-      if (char === ")") bracketDepth--;
+      if (char === "(") bracketDepth++
+      if (char === ")") bracketDepth--
 
       if (bracketDepth === 0 && weCare) {
-        ends.push(idx);
-        weCare = false;
+        ends.push(idx)
+        weCare = false
       }
 
-      x++;
-    });
+      x++
+    })
 
-    const ranges: [number, number][] = starts.map((start, idx) => [
-      start,
-      ends[idx],
-    ]);
+    const ranges: [number, number][] = starts.map((start, idx) => ([start, ends[idx]]))
 
-    const variables = ranges
-      .map((range) =>
-        fileBody
-          .slice(...range)
-          .split(",")
-          .find((arg) => !arg.includes(":"))
-          ?.replace(/\s+/, ""),
-      )
-      .filter((v) => v !== undefined);
+    const vars: [number, number][] = ranges.map(([start, end]) => {
+      const text = fileBody.slice(start, end)
+      const args = text.split(",").map(slice => slice + ",")
 
-    console.log(variables);
-  });
+      const variableArg = args.findIndex(arg => !arg.includes(":"))
+      const lenBefore = args.slice(0, variableArg)
+        .map(arg => arg.length)
+        .reduce((acc, current) => acc+current, 0)
+      const whitespace = args[variableArg].match(/^\s+/)?.[0].length || 0
+
+      return [
+        start + lenBefore + whitespace,
+        start + lenBefore + args[variableArg].length - 1,
+      ]
+    })
+
+    console.log(vars.map(range => fileBody.slice(...range)))
+  })
 }
 
 serve(
@@ -228,3 +235,4 @@ async function sh(command: string): Promise<string> {
     });
   });
 }
+
