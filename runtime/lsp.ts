@@ -3,7 +3,7 @@ import { spawn } from "child_process";
 export type LSP = {
   request<T extends object | any[]>(method: string, params?: T): Promise<void>;
   notify<T extends object | any[]>(method: string, params?: T): void;
-  subscribe(handler: (message: object) => any): void;
+  subscribe(handler: (message: any) => any): void;
   exit(): void;
 };
 
@@ -16,7 +16,7 @@ export function buildLSP(cwd: string): LSP {
   let contentLength = 0;
   let buffer = "";
 
-  const subscribers: Set<(message: object) => any> = new Set();
+  const subscribers: Set<(message: any) => any> = new Set();
 
   let resolveFunction: () => void = () => {};
 
