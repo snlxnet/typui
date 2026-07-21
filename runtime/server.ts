@@ -3,11 +3,15 @@ import { exec } from "child_process";
 import { readFile, writeFile } from "fs/promises";
 import { Hono } from "hono";
 import client from "./dist/index.html";
+import { buildLSP } from "./lsp.js";
 
 const app = new Hono();
 
-const WORKDIR = (process.env.DYNO_DIR || "./") + "/";
+const WORKDIR = "/Users/alex/repos/dyno/dx/"; // (process.env.DYNO_DIR || "./") + "/";
 const PORT = +(process.env.DYNO_PORT || 3000);
+
+const LSP = buildLSP(WORKDIR);
+LSP.subscribe(console.log);
 
 const system = `#let window-width = 1280
 #let window-height = 720
@@ -59,6 +63,11 @@ app.post("/compile", async (c) => {
     await sh(`rm ${tempFile}*`);
   }, 1000);
   return new Response(compilerResponse || output);
+});
+app.get("/explore", async (c) => {
+  const response = {};
+
+  return c.json(response);
 });
 
 serve(
