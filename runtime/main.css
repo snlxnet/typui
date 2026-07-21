@@ -44,6 +44,7 @@ body {
 input,
 select {
   transform: translateY(-50%);
+  appearance: none;
 }
 
 input,
