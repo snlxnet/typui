@@ -85,6 +85,7 @@ type FieldInfo = {
   args: string;
 
   type: DynoType;
+  selected?: number;
 };
 
 async function explore() {
@@ -139,20 +140,38 @@ async function explore() {
 
   console.log(fields);
 
-  // Insert labels
-  const replaced = applySlices(
-    fileBody,
-    fields
-      .entries()
-      .toArray()
-      .map(([name, field]) => {
-        return [field.argsSlice, `label: "dyno-${name}", ${field.args}`];
-      }),
-  );
+  // Let's say the user changed something:
+  fields.get("number")!.value = "1";
+  fields.get("select")!.selected = 1;
+
+  // Insert labels & values
+  const fieldArray = fields.entries().toArray();
+
+  const replaceArgs = fieldArray.map(([name, field]): [Slice, string] => {
+    const label = `label: "dyno-${name}", `;
+    const selected = field.selected ? `selected: ${field.selected}, ` : "";
+    const args = label + selected + field.args;
+
+    return [field.argsSlice, args];
+  });
+  const replaceValues = fieldArray.map(([_name, field]): [Slice, string] => {
+    return [field.valueSlice, " " + field.value];
+  });
+
+  const replaced = applySlices(fileBody, [...replaceArgs, ...replaceValues]);
+
+  /*
+  lsp.notify("textDocument/didChange", {
+    textDocument: { uri: fileUri, version: 1 },
+    contentChanges: [{ text: fileBody }],
+  });
+  */
+
   console.log(replaced);
 }
 
-function applySlices(source: string, sliceValues: [Slice, string][]) {
+function applySlices(source: string, sliceValuesUnsorted: [Slice, string][]) {
+  const sliceValues = sliceValuesUnsorted.toSorted((a, b) => a[0][0] - b[0][0]);
   const chars = Array.from(source);
   let lenDiff = 0;
 

@@ -1,4 +1,6 @@
-Status: Trying to use in production & working on docs
+## Status
+
+Proof of concept kind-of done: replacing the values with tinymist.
 
 ## Usage
 
