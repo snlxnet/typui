@@ -22,7 +22,7 @@ export async function getVars({
   });
 
   return new Promise(
-    (resolve: (data: { where: Range; what: string }[]) => any) => {
+    (resolve: (data: { range: Range; variable: string }[]) => any) => {
       lsp.subscribe((message) => {
         if (!isReferences(message)) {
           return;
@@ -111,7 +111,7 @@ function processReferences(references: Range[], fileBody: string) {
     x++;
   });
 
-  const variables: { where: Range; what: string }[] = starts.map(
+  const variables: { range: Range; variable: string }[] = starts.map(
     (start, idx) => {
       const end = ends[idx];
 
@@ -126,7 +126,7 @@ function processReferences(references: Range[], fileBody: string) {
       const lineOffset = (lenBefore + whitespace).match(/\n/g)?.length || 0;
       const characterOffset = whitespace.match(/[^\n]/g)?.[0].length || 0;
 
-      const where = {
+      const range = {
         start: {
           line: start.pos.line + lineOffset,
           character: start.pos.character + characterOffset,
@@ -137,7 +137,7 @@ function processReferences(references: Range[], fileBody: string) {
         },
       };
 
-      return { where, what: variableName };
+      return { range, variable: variableName, slice: [start.idx, end.idx] };
     },
   );
 

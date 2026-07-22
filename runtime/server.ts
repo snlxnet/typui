@@ -105,16 +105,16 @@ async function explore() {
 
   console.log("first req done");
 
-  for (let { what, where } of vars) {
+  for (let { variable, range } of vars) {
     console.log("getting def");
     const definition = await getValueDefinition({
       fileUri,
       fileBody,
       lsp,
-      target: where.start,
+      target: range.start,
     });
 
-    console.log(what, where, fileBody.slice(...definition));
+    console.log(variable, fileBody.slice(...definition));
   }
 }
 
