@@ -6,6 +6,7 @@ import client from "./dist/index.html";
 import { buildLSP } from "./lsp.js";
 import { fileURLToPath } from "url";
 import { getVars } from "./getVars.ts";
+import { getValueDefinition } from "./getDefition.ts";
 
 const app = new Hono();
 
@@ -13,7 +14,7 @@ const WORKDIR = "/Users/alex/repos/dyno/runtime/"; // (process.env.DYNO_DIR || "
 const PORT = +(process.env.DYNO_PORT || 3000);
 
 const lsp = buildLSP(WORKDIR);
-lsp.subscribe(console.log);
+lsp.subscribe((msg) => console.log(JSON.stringify(msg, null, 4)));
 
 const system = `#let window-width = 1280
 #let window-height = 720
@@ -67,20 +68,19 @@ app.post("/compile", async (c) => {
   return new Response(compilerResponse || output);
 });
 app.get("/explore", async (c) => {
-
   const response = {};
 
   return c.json(response);
 });
 
-setTimeout(explore, 1000)
+setTimeout(explore, 1000);
 
 async function explore() {
   const fileUri = `file://${WORKDIR}root.typ`;
   const libUri = `file://${WORKDIR}lib.typ`;
 
-  const filePath = fileURLToPath(fileUri)
-  const fileBody = await readFile(filePath, {encoding: "utf-8"})
+  const filePath = fileURLToPath(fileUri);
+  const fileBody = await readFile(filePath, { encoding: "utf-8" });
 
   lsp.notify("textDocument/didOpen", {
     textDocument: {
@@ -93,13 +93,7 @@ async function explore() {
 
   await lsp.request("workspace/executeCommand", {
     command: "tinymist.doStartBrowsingPreview",
-    arguments: [
-      [
-        "--data-plane-host",
-        "127.0.0.1:4343",
-        filePath,
-      ],
-    ],
+    arguments: [["--data-plane-host", "127.0.0.1:4343", filePath]],
   });
 
   const vars = await getVars({
@@ -107,9 +101,21 @@ async function explore() {
     fileBody,
     libUri,
     lsp,
-  })
+  });
 
-  console.log(vars)
+  console.log("first req done");
+
+  for (let { what, where } of vars) {
+    console.log("getting def");
+    const definition = await getValueDefinition({
+      fileUri,
+      fileBody,
+      lsp,
+      target: where.start,
+    });
+
+    console.log(what, where, fileBody.slice(...definition));
+  }
 }
 
 serve(
@@ -134,4 +140,3 @@ async function sh(command: string): Promise<string> {
     });
   });
 }
-

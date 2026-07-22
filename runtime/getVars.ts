@@ -1,37 +1,51 @@
-import {type LSP} from "./lsp.ts"
+import { type LSP } from "./lsp.ts";
 import type { Location, Position, Range } from "./common.ts";
 
-export async function getVars({fileUri, fileBody, libUri, lsp}: {fileUri: string, fileBody: string, libUri: string, lsp: LSP}) {
+export async function getVars({
+  fileUri,
+  fileBody,
+  libUri,
+  lsp,
+}: {
+  fileUri: string;
+  fileBody: string;
+  libUri: string;
+  lsp: LSP;
+}) {
   lsp.request("textDocument/references", {
-    context: {includeDeclaration: false},
-    textDocument: {uri: libUri},
+    context: { includeDeclaration: false },
+    textDocument: { uri: libUri },
     position: {
       line: 0,
       character: 6,
     },
   });
 
-  return new Promise((resolve: (where: Range[]) => any) => {
-    lsp.subscribe((message) => {
-      if (!isReferences(message)) {
-        return
-      }
+  return new Promise(
+    (resolve: (data: { where: Range; what: string }[]) => any) => {
+      lsp.subscribe((message) => {
+        if (!isReferences(message)) {
+          return;
+        }
 
-      const references = (message.result as Location[])
-        .filter((ref) => ref.uri === fileUri)
-        .map((ref) => ref.range);
+        const references = (message.result as Location[])
+          .filter((ref) => ref.uri === fileUri)
+          .map((ref) => ref.range);
 
-      const result = processReferences(references, fileBody)
+        const result = processReferences(references, fileBody);
 
-      resolve(result)
-    });
-  })
+        resolve(result);
+      });
+    },
+  );
 }
 
 function isReferences(message: any) {
-    return Array.isArray(message?.result)
-    && message.result[0]?.range
-    && message.result[0]?.uri
+  return (
+    Array.isArray(message?.result) &&
+    message.result[0]?.range &&
+    message.result[0]?.uri
+  );
 }
 
 function processReferences(references: Range[], fileBody: string) {
@@ -58,8 +72,8 @@ function processReferences(references: Range[], fileBody: string) {
   let bracketDepth = 0;
   let weCare = false;
 
-  let starts: {pos: Position, idx: number}[] = [];
-  let ends: {pos: Position, idx: number}[] = [];
+  let starts: { pos: Position; idx: number }[] = [];
+  let ends: { pos: Position; idx: number }[] = [];
 
   fileBody.split("").forEach((char, idx) => {
     if (char === "\n") {
@@ -76,7 +90,7 @@ function processReferences(references: Range[], fileBody: string) {
         pos: {
           line: y,
           character: x + 1,
-        }
+        },
       });
     }
 
@@ -89,7 +103,7 @@ function processReferences(references: Range[], fileBody: string) {
         pos: {
           line: y,
           character: x,
-        }
+        },
       });
       weCare = false;
     }
@@ -97,30 +111,35 @@ function processReferences(references: Range[], fileBody: string) {
     x++;
   });
 
-  const variables: Range[] = starts.map((start, idx) => {
-    const end = ends[idx]
+  const variables: { where: Range; what: string }[] = starts.map(
+    (start, idx) => {
+      const end = ends[idx];
 
-    const text = fileBody.slice(start.idx, end.idx)
-    const args = text.split(",").map(slice => slice + ",")
+      const text = fileBody.slice(start.idx, end.idx);
+      const args = text.split(",").map((slice) => slice + ",");
 
-    const variableArg = args.findIndex(arg => !arg.includes(":"))
-    const lenBefore = args.slice(0, variableArg).join("")
-    const whitespace = args[variableArg].match(/^\s+/)?.[0] || ""
+      const variableArg = args.findIndex((arg) => !arg.includes(":"));
+      const variableName = args[variableArg].replace(/[\s,]+/g, "");
+      const lenBefore = args.slice(0, variableArg).join("");
+      const whitespace = args[variableArg].match(/^\s+/)?.[0] || "";
 
-    const lineOffset = (lenBefore + whitespace).match(/\n/g)?.length || 0
-    const characterOffset = whitespace.match(/[^\n]/g)?.[0].length || 0
+      const lineOffset = (lenBefore + whitespace).match(/\n/g)?.length || 0;
+      const characterOffset = whitespace.match(/[^\n]/g)?.[0].length || 0;
 
-    return {
-      start: {
-        line: start.pos.line + lineOffset,
-        character: start.pos.character + characterOffset,
-      },
-      end: {
-        line: start.pos.line + lineOffset,
-        character: start.pos.character + args[variableArg].length - 1,
-      },
-    }
-  })
+      const where = {
+        start: {
+          line: start.pos.line + lineOffset,
+          character: start.pos.character + characterOffset,
+        },
+        end: {
+          line: start.pos.line + lineOffset,
+          character: start.pos.character + args[variableArg].length - 1,
+        },
+      };
 
-  return variables
+      return { where, what: variableName };
+    },
+  );
+
+  return variables;
 }
