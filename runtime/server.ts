@@ -88,6 +88,7 @@ type FieldInfo = {
 };
 
 async function explore() {
+  const clientId = crypto.randomUUID();
   const fileUri = `file://${WORKDIR}root.typ`;
   const libUri = `file://${WORKDIR}lib.typ`;
 
@@ -164,6 +165,11 @@ async function explore() {
   });
 
   console.log(replaced);
+
+  await lsp.request("workspace/executeCommand", {
+    command: "tinymist.exportSvg",
+    arguments: [filePath, { pageNumberTemplate: `${clientId}-{0p}` }],
+  });
 }
 
 function applySlices(source: string, sliceValuesUnsorted: [Slice, string][]) {
