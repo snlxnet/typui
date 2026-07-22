@@ -77,17 +77,17 @@ app.get("/explore", async (c) => {
 
 setTimeout(explore, 1000);
 
+type FieldInfo = {
+  valueSlice: Slice;
+  value: string;
+
+  argsSlice: Slice;
+  args: string;
+
+  type: DynoType;
+};
+
 async function explore() {
-  type FieldInfo = {
-    valueSlice: Slice;
-    value: string;
-
-    argsSlice: Slice;
-    args: string;
-
-    type: DynoType;
-  };
-
   const fileUri = `file://${WORKDIR}root.typ`;
   const libUri = `file://${WORKDIR}lib.typ`;
 
@@ -118,7 +118,6 @@ async function explore() {
   const fields: Map<string, FieldInfo> = new Map();
 
   for (let { variable, range, slice } of vars) {
-    console.log({ range });
     const valueSlice = await getValueSlice({
       fileUri,
       fileBody,
@@ -139,6 +138,30 @@ async function explore() {
   }
 
   console.log(fields);
+
+  // Insert labels
+  const replaced = applySlices(
+    fileBody,
+    fields
+      .entries()
+      .toArray()
+      .map(([name, field]) => {
+        return [field.argsSlice, `label: "dyno-${name}", ${field.args}`];
+      }),
+  );
+  console.log(replaced);
+}
+
+function applySlices(source: string, sliceValues: [Slice, string][]) {
+  const chars = Array.from(source);
+  let lenDiff = 0;
+
+  sliceValues.forEach(([slice, value]) => {
+    const sliceLen = slice[1] - slice[0];
+    chars.splice(slice[0] + lenDiff, sliceLen, ...value.split(""));
+    lenDiff += value.length - sliceLen;
+  });
+  return chars.join("");
 }
 
 serve(

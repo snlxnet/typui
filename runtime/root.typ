@@ -20,6 +20,6 @@ get options: #options(toggle)
 
 - #inp(number)
 - #inp(checkbox)
-- #inp(text)
-- #inp(toggle)
+- #inp(width: 3cm, text)
+- #inp(toggle, stroke: none)
 - #inp(select)
