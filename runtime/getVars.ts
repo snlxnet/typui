@@ -128,7 +128,8 @@ function processReferences(references: Range[], fileBody: string) {
       const whitespace = args[variableArg].match(/^\s+/)?.[0] || "";
 
       const lineOffset = (lenBefore + whitespace).match(/\n/g)?.length || 0;
-      const characterOffset = whitespace.match(/[^\n]/g)?.[0].length || 0;
+      const characterOffset =
+        (lenBefore + whitespace).split("\n").at(-1)?.length || 0;
 
       const range = {
         start: {

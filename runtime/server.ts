@@ -80,7 +80,11 @@ setTimeout(explore, 1000);
 async function explore() {
   type FieldInfo = {
     valueSlice: Slice;
+    value: string;
+
     argsSlice: Slice;
+    args: string;
+
     type: DynoType;
   };
 
@@ -111,9 +115,10 @@ async function explore() {
     lsp,
   });
 
-  const definitions: Map<string, FieldInfo> = new Map();
+  const fields: Map<string, FieldInfo> = new Map();
 
   for (let { variable, range, slice } of vars) {
+    console.log({ range });
     const valueSlice = await getValueSlice({
       fileUri,
       fileBody,
@@ -121,16 +126,19 @@ async function explore() {
       target: range.start,
     });
 
-    const value = fileBody.slice(...valueSlice).trim();
+    const args = fileBody.slice(...slice);
+    const value = fileBody.slice(...valueSlice);
 
-    definitions.set(variable, {
+    fields.set(variable, {
       valueSlice,
+      value,
       argsSlice: slice,
+      args,
       type: getType(value),
     });
   }
 
-  console.log(definitions);
+  console.log(fields);
 }
 
 serve(
