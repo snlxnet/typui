@@ -1,25 +1,25 @@
-#import "lib.typ": input as inp
+#import "lib.typ": input as inp, set-theme
+#set-theme((value, input) => {
+  set box(stroke: blue, inset: 2mm, radius: 1mm)
+  set text(fill: blue)
+  show "checkbox-on": sym.checkmark
+  show "checkbox-off": sym.crossmark
+
+  input
+})
 
 = Dyno
 
 #let number = 42
-#let checkbox = false
 #let text = "string"
-#let toggle = [on\ off]
-#let select = [
-  first\
-  second\
-  third
-]
+#let checkbox = false
+#let toggle = false
+#let select-value = 0
+#let select-options = ("zero", "one", "two")
 
-/*
-render input: #input(number)
-
-get options: #options(toggle)
-*/
-
+Render input:
 - #inp(number)
+- #inp(text)
 - #inp(checkbox)
-- #inp(width: 3cm, text)
-- #inp(toggle, stroke: none)
-- #inp(select)
+- #inp(toggle, on: [Enabled], off: [Disabled])
+- #inp(select-value, options: select-options)

@@ -1,6 +1,9 @@
 import { type LSP } from "./lsp.ts";
 import type { Location, Position, Range, Slice } from "./common.ts";
 
+const INPUT_FUNCTION_LINE = 3;
+const INPUT_FUNCTION_CHARACTER = 6;
+
 export async function getVars({
   fileUri,
   fileBody,
@@ -16,8 +19,8 @@ export async function getVars({
     context: { includeDeclaration: false },
     textDocument: { uri: libUri },
     position: {
-      line: 0,
-      character: 6,
+      line: INPUT_FUNCTION_LINE,
+      character: INPUT_FUNCTION_CHARACTER,
     },
   });
 

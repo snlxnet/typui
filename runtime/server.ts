@@ -8,7 +8,6 @@ import { fileURLToPath } from "url";
 import { getVars } from "./getVars.ts";
 import { getValueDefinition as getValueSlice } from "./getDefition.ts";
 import type { Slice } from "./common.ts";
-import { getType, type DynoType } from "./getType.ts";
 
 const app = new Hono();
 
@@ -84,8 +83,8 @@ type FieldInfo = {
   argsSlice: Slice;
   args: string;
 
-  type: DynoType;
-  selected?: number;
+  type: "number" | "string" | "boolean";
+  options?: string[];
 };
 
 async function explore() {
@@ -134,7 +133,7 @@ async function explore() {
       value,
       argsSlice: slice,
       args,
-      type: getType(value),
+      type: typeof JSON.parse(value) as "number" | "string" | "boolean",
     });
   }
 
@@ -142,15 +141,14 @@ async function explore() {
 
   // Let's say the user changed something:
   fields.get("number")!.value = "1";
-  fields.get("select")!.selected = 1;
+  fields.get("select-value")!.value = "2";
 
   // Insert labels & values
   const fieldArray = fields.entries().toArray();
 
   const replaceArgs = fieldArray.map(([name, field]): [Slice, string] => {
-    const label = `label: "dyno-${name}", `;
-    const selected = field.selected ? `selected: ${field.selected}, ` : "";
-    const args = label + selected + field.args;
+    const label = `name: "${name}", `;
+    const args = label + field.args;
 
     return [field.argsSlice, args];
   });
@@ -160,12 +158,10 @@ async function explore() {
 
   const replaced = applySlices(fileBody, [...replaceArgs, ...replaceValues]);
 
-  /*
   lsp.notify("textDocument/didChange", {
     textDocument: { uri: fileUri, version: 1 },
-    contentChanges: [{ text: fileBody }],
+    contentChanges: [{ text: replaced }],
   });
-  */
 
   console.log(replaced);
 }
