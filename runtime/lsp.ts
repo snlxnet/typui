@@ -1,13 +1,18 @@
 import { spawn } from "child_process";
+import { readFile } from "fs/promises";
+import { fileURLToPath } from "url";
 
 export type LSP = {
   request<T extends object | any[]>(method: string, params?: T): Promise<void>;
   notify<T extends object | any[]>(method: string, params?: T): void;
   subscribe(handler: (message: any) => any): void;
   exit(): void;
+  fileUri: string;
+  filePath: string;
+  initialFileBody: string;
 };
 
-export function buildLSP(cwd: string): LSP {
+export async function buildLSP(cwd: string, fileUri: string): Promise<LSP> {
   const lspServer = spawn("tinymist", ["lsp", "--ignore-system-fonts"], {
     env: { ...process.env, TYPST_FONT_PATHS: cwd, cwd },
   });
@@ -62,6 +67,20 @@ export function buildLSP(cwd: string): LSP {
   }
 
   let id = 1;
+  async function request(method: string, params?: any) {
+    return send({
+      jsonrpc: "2.0",
+      id: id++,
+      method,
+      params,
+    });
+  }
+  function notify(method: string, params?: any) {
+    send({ jsonrpc: "2.0", method, params });
+  }
+
+  const filePath = fileURLToPath(fileUri);
+  const fileBody = await readFile(filePath, { encoding: "utf-8" });
 
   async function init() {
     const initParams = {
@@ -83,33 +102,31 @@ export function buildLSP(cwd: string): LSP {
       },
     };
 
-    await send({
-      jsonrpc: "2.0",
-      id: 0,
-      method: "initialize",
-      params: initParams,
-    });
+    await request("initialize", initParams);
 
-    send({ jsonrpc: "2.0", method: "initialized" });
+    notify("initialized");
+
+    notify("textDocument/didOpen", {
+      textDocument: {
+        languageId: "typst",
+        text: fileBody,
+        uri: fileUri,
+        version: 1,
+      },
+    });
   }
 
-  init();
+  await init();
 
   return {
-    request(method, params?) {
-      return send({
-        jsonrpc: "2.0",
-        id: id++,
-        method,
-        params,
-      });
-    },
-    notify(method, params?) {
-      send({ jsonrpc: "2.0", method, params });
-    },
+    request,
+    notify,
     subscribe(handler) {
       subscribers.add(handler);
     },
+    fileUri,
+    filePath,
+    initialFileBody: fileBody,
     exit() {
       lspServer.kill();
     },

@@ -3,7 +3,7 @@ import { exec } from "child_process";
 import { readFile, writeFile } from "fs/promises";
 import { Hono } from "hono";
 import client from "./dist/index.html";
-import { buildLSP } from "./lsp.js";
+import { buildLSP, type LSP } from "./lsp.js";
 import { fileURLToPath } from "url";
 import { getVars } from "./getVars.ts";
 import { getValueDefinition as getValueSlice } from "./getDefition.ts";
@@ -12,10 +12,8 @@ import type { Slice } from "./common.ts";
 const app = new Hono();
 
 const WORKDIR = "/Users/alex/repos/dyno/runtime/"; // (process.env.DYNO_DIR || "./") + "/";
+const LIB_URI = `file://${WORKDIR}lib.typ`;
 const PORT = +(process.env.DYNO_PORT || 3000);
-
-const lsp = buildLSP(WORKDIR);
-lsp.subscribe((msg) => console.log(JSON.stringify(msg, null, 4)));
 
 const system = `#let window-width = 1280
 #let window-height = 720
@@ -68,13 +66,6 @@ app.post("/compile", async (c) => {
   }, 1000);
   return new Response(compilerResponse || output);
 });
-app.get("/explore", async (c) => {
-  const response = {};
-
-  return c.json(response);
-});
-
-setTimeout(explore, 1000);
 
 type FieldInfo = {
   valueSlice: Slice;
@@ -87,65 +78,65 @@ type FieldInfo = {
   options?: string[];
 };
 
-async function explore() {
+async function openFile(fileUri: string) {
   const clientId = crypto.randomUUID();
-  const fileUri = `file://${WORKDIR}root.typ`;
-  const libUri = `file://${WORKDIR}lib.typ`;
+  const lsp = await buildLSP(WORKDIR, fileUri);
 
-  const filePath = fileURLToPath(fileUri);
-  const fileBody = await readFile(filePath, { encoding: "utf-8" });
+  return {
+    lsp,
+    clientId,
+  };
+}
 
-  lsp.notify("textDocument/didOpen", {
-    textDocument: {
-      languageId: "typst",
-      text: fileBody,
-      uri: fileUri,
-      version: 1,
-    },
-  });
-
-  await lsp.request("workspace/executeCommand", {
-    command: "tinymist.doStartBrowsingPreview",
-    arguments: [["--data-plane-host", "127.0.0.1:4343", filePath]],
-  });
+async function getFields(lsp: LSP) {
+  const { fileUri, initialFileBody } = lsp;
 
   const vars = await getVars({
     fileUri,
-    fileBody,
-    libUri,
+    fileBody: initialFileBody,
+    libUri: LIB_URI,
     lsp,
   });
 
-  const fields: Map<string, FieldInfo> = new Map();
+  const fields: [string, FieldInfo][] = [];
 
   for (let { variable, range, slice } of vars) {
     const valueSlice = await getValueSlice({
       fileUri,
-      fileBody,
+      fileBody: initialFileBody,
       lsp,
       target: range.start,
     });
 
-    const args = fileBody.slice(...slice);
-    const value = fileBody.slice(...valueSlice);
+    const args = initialFileBody.slice(...slice);
+    const value = initialFileBody.slice(...valueSlice);
 
-    fields.set(variable, {
-      valueSlice,
-      value,
-      argsSlice: slice,
-      args,
-      type: typeof JSON.parse(value) as "number" | "string" | "boolean",
-    });
+    fields.push([
+      variable,
+      {
+        valueSlice,
+        value,
+        argsSlice: slice,
+        args,
+        type: typeof JSON.parse(value) as "number" | "string" | "boolean",
+      },
+    ]);
   }
 
-  console.log(fields);
+  return Object.fromEntries(fields);
+}
 
-  // Let's say the user changed something:
-  fields.get("number")!.value = "1";
-  fields.get("select-value")!.value = "2";
-
-  // Insert labels & values
-  const fieldArray = fields.entries().toArray();
+async function applyFields({
+  lsp,
+  fields,
+  clientId,
+}: {
+  lsp: LSP;
+  fields: Record<string, FieldInfo>;
+  clientId: string;
+}) {
+  const { initialFileBody, fileUri, filePath } = lsp;
+  const fieldArray = Object.entries(fields);
 
   const replaceArgs = fieldArray.map(([name, field]): [Slice, string] => {
     const label = `name: "${name}", `;
@@ -157,19 +148,37 @@ async function explore() {
     return [field.valueSlice, " " + field.value];
   });
 
-  const replaced = applySlices(fileBody, [...replaceArgs, ...replaceValues]);
+  const replaced = applySlices(initialFileBody, [
+    ...replaceArgs,
+    ...replaceValues,
+  ]);
 
   lsp.notify("textDocument/didChange", {
     textDocument: { uri: fileUri, version: 1 },
     contentChanges: [{ text: replaced }],
   });
 
-  console.log(replaced);
-
   await lsp.request("workspace/executeCommand", {
     command: "tinymist.exportSvg",
-    arguments: [filePath, { pageNumberTemplate: `${clientId}-{0p}` }],
+    arguments: [filePath, { pageNumberTemplate: `${clientId}`, merge: {} }],
   });
+
+  return replaced;
+}
+
+explore();
+async function explore() {
+  const fileUri = `file://${WORKDIR}root.typ`;
+  const { lsp, clientId } = await openFile(fileUri);
+
+  const fields = await getFields(lsp);
+
+  // Let's say the user changed something:
+  fields["number"].value = "1";
+  fields["select-value"].value = "1";
+
+  const source = await applyFields({ lsp, fields, clientId });
+  console.log(source);
 }
 
 function applySlices(source: string, sliceValuesUnsorted: [Slice, string][]) {
