@@ -12,3 +12,5 @@ export type Position = {
   line: number;
   character: number;
 };
+
+export type Slice = [number, number];

@@ -6,7 +6,9 @@ import client from "./dist/index.html";
 import { buildLSP } from "./lsp.js";
 import { fileURLToPath } from "url";
 import { getVars } from "./getVars.ts";
-import { getValueDefinition } from "./getDefition.ts";
+import { getValueDefinition as getValueSlice } from "./getDefition.ts";
+import type { Slice } from "./common.ts";
+import { getType, type DynoType } from "./getType.ts";
 
 const app = new Hono();
 
@@ -76,6 +78,12 @@ app.get("/explore", async (c) => {
 setTimeout(explore, 1000);
 
 async function explore() {
+  type FieldInfo = {
+    valueSlice: Slice;
+    argsSlice: Slice;
+    type: DynoType;
+  };
+
   const fileUri = `file://${WORKDIR}root.typ`;
   const libUri = `file://${WORKDIR}lib.typ`;
 
@@ -103,19 +111,26 @@ async function explore() {
     lsp,
   });
 
-  console.log("first req done");
+  const definitions: Map<string, FieldInfo> = new Map();
 
-  for (let { variable, range } of vars) {
-    console.log("getting def");
-    const definition = await getValueDefinition({
+  for (let { variable, range, slice } of vars) {
+    const valueSlice = await getValueSlice({
       fileUri,
       fileBody,
       lsp,
       target: range.start,
     });
 
-    console.log(variable, fileBody.slice(...definition));
+    const value = fileBody.slice(...valueSlice).trim();
+
+    definitions.set(variable, {
+      valueSlice,
+      argsSlice: slice,
+      type: getType(value),
+    });
   }
+
+  console.log(definitions);
 }
 
 serve(

@@ -1,4 +1,4 @@
-import { type Position, type Range } from "./common.ts";
+import { type Position, type Range, type Slice } from "./common.ts";
 import { type LSP } from "./lsp.ts";
 
 type LocationLink = {
@@ -22,7 +22,7 @@ export async function getValueDefinition({
     position: target,
   });
 
-  return new Promise((resolve: (where: [number, number]) => any) => {
+  return new Promise((resolve: (where: Slice) => any) => {
     lsp.subscribe((message) => {
       if (!isDefinition(message)) {
         return;
@@ -43,7 +43,7 @@ function isDefinition(message: any) {
   return Array.isArray(message.result);
 }
 
-function getValue(variable: Range, fileBody: string): [number, number] {
+function getValue(variable: Range, fileBody: string): Slice {
   const startIdx =
     fileBody.split("\n").slice(0, variable.end.line).join("\n").length +
     variable.end.character;
@@ -79,5 +79,5 @@ function getValue(variable: Range, fileBody: string): [number, number] {
     }
   });
 
-  return [firstEqualSign, endIdx];
+  return [firstEqualSign + 1, endIdx];
 }

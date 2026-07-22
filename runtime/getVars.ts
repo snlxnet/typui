@@ -1,5 +1,5 @@
 import { type LSP } from "./lsp.ts";
-import type { Location, Position, Range } from "./common.ts";
+import type { Location, Position, Range, Slice } from "./common.ts";
 
 export async function getVars({
   fileUri,
@@ -22,7 +22,11 @@ export async function getVars({
   });
 
   return new Promise(
-    (resolve: (data: { range: Range; variable: string }[]) => any) => {
+    (
+      resolve: (
+        data: { range: Range; variable: string; slice: Slice }[],
+      ) => any,
+    ) => {
       lsp.subscribe((message) => {
         if (!isReferences(message)) {
           return;
@@ -111,8 +115,8 @@ function processReferences(references: Range[], fileBody: string) {
     x++;
   });
 
-  const variables: { range: Range; variable: string }[] = starts.map(
-    (start, idx) => {
+  const variables: { range: Range; variable: string; slice: Slice }[] =
+    starts.map((start, idx) => {
       const end = ends[idx];
 
       const text = fileBody.slice(start.idx, end.idx);
@@ -138,8 +142,7 @@ function processReferences(references: Range[], fileBody: string) {
       };
 
       return { range, variable: variableName, slice: [start.idx, end.idx] };
-    },
-  );
+    });
 
   return variables;
 }
